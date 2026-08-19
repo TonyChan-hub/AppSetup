@@ -138,7 +138,6 @@ async function main() {
   const excludedTemplateEntries = new Set([
     'node_modules',
     '.git',
-    '.cursor',
     'android/build',
     'ios/build',
     'build',

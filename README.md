@@ -23,10 +23,7 @@ Business-free React Native scaffold extracted from `paint-color-visualizer-c`.
 ## CLI usage
 
 ```bash
-cd /Users/a1518/Desktop/project/rn-template
-npm install
-npm link
-create-rn-template my-new-app --package=com.example.mynewapp
+npx @bear1210/create-rn-template my-new-app --package=com.example.mynewapp
 ```
 
 Optional flags:

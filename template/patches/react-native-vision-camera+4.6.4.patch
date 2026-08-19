@@ -1,0 +1,64 @@
+diff --git a/node_modules/react-native-vision-camera/VisionCamera.podspec b/node_modules/react-native-vision-camera/VisionCamera.podspec
+index 5d611cf..298028f 100644
+--- a/node_modules/react-native-vision-camera/VisionCamera.podspec
++++ b/node_modules/react-native-vision-camera/VisionCamera.podspec
+@@ -5,7 +5,7 @@ package = JSON.parse(File.read(File.join(__dir__, "package.json")))
+ Pod::UI.puts "[VisionCamera] Thank you for using VisionCamera ❤️"
+ Pod::UI.puts "[VisionCamera] If you enjoy using VisionCamera, please consider sponsoring this project: https://github.com/sponsors/mrousavy"
+ 
+-enableLocation = true
++enableLocation = false
+ if defined?($VCEnableLocation)
+   Pod::UI.puts "[VisionCamera] $VCEnableLocation is set to #{$VCEnableLocation}!"
+   enableLocation = $VCEnableLocation
+diff --git a/node_modules/react-native-vision-camera/android/CMakeLists.txt b/node_modules/react-native-vision-camera/android/CMakeLists.txt
+index 17097c1..6434b6d 100644
+--- a/node_modules/react-native-vision-camera/android/CMakeLists.txt
++++ b/node_modules/react-native-vision-camera/android/CMakeLists.txt
+@@ -86,3 +86,7 @@ if (ENABLE_FRAME_PROCESSORS)
+             react-native-worklets-core::rnworklets
+     )
+ endif()
++
++if(ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES OR CMAKE_ANDROID_NDK_VERSION VERSION_LESS "28")
++    target_link_options(${PACKAGE_NAME} PRIVATE "-Wl,-z,max-page-size=16384")
++endif()
+diff --git a/node_modules/react-native-vision-camera/android/build.gradle b/node_modules/react-native-vision-camera/android/build.gradle
+index b5d2e83..370d4a6 100644
+--- a/node_modules/react-native-vision-camera/android/build.gradle
++++ b/node_modules/react-native-vision-camera/android/build.gradle
+@@ -133,7 +133,8 @@ android {
+         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
+         arguments "-DANDROID_STL=c++_shared",
+                 "-DNODE_MODULES_DIR=${nodeModules}",
+-                "-DENABLE_FRAME_PROCESSORS=${enableFrameProcessors ? "ON" : "OFF"}"
++                "-DENABLE_FRAME_PROCESSORS=${enableFrameProcessors ? "ON" : "OFF"}",
++                "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+         abiFilters (*reactNativeArchitectures())
+       }
+     }
+diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/react/CameraViewManager.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/react/CameraViewManager.kt
+index c5845b7..eb1cc30 100644
+--- a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/react/CameraViewManager.kt
++++ b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/react/CameraViewManager.kt
+@@ -42,6 +42,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
+       .put(CameraPreviewOrientationChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onPreviewOrientationChanged"))
+       .put(AverageFpsChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onAverageFpsChanged"))
+       .build()
++      .toMutableMap()
+ 
+   override fun getName(): String = TAG
+ 
+diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/react/CameraViewModule.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/react/CameraViewModule.kt
+index 7ae4209..059f677 100644
+--- a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/react/CameraViewModule.kt
++++ b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/react/CameraViewModule.kt
+@@ -189,7 +189,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
+   }
+ 
+   private fun canRequestPermission(permission: String): Boolean {
+-    val activity = currentActivity as? PermissionAwareActivity
++    val activity = reactApplicationContext.currentActivity as? PermissionAwareActivity
+     return activity?.shouldShowRequestPermissionRationale(permission) ?: false
+   }
+ 

@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native-worklets-core/android/CMakeLists.txt b/node_modules/react-native-worklets-core/android/CMakeLists.txt
+index c9e4bf8..79907fb 100644
+--- a/node_modules/react-native-worklets-core/android/CMakeLists.txt
++++ b/node_modules/react-native-worklets-core/android/CMakeLists.txt
+@@ -122,3 +122,7 @@ elseif(${JS_RUNTIME} STREQUAL "jsc")
+ else()
+   message(FATAL_ERROR "Unknown JS runtime ${JS_RUNTIME}.")
+ endif()
++
++if(ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES OR CMAKE_ANDROID_NDK_VERSION VERSION_LESS "28")
++  target_link_options(${PACKAGE_NAME} PRIVATE "-Wl,-z,max-page-size=16384")
++endif()

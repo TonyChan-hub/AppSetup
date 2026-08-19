@@ -1,0 +1,42 @@
+---
+description: Never use private iOS APIs — App Store rejections apply
+globs: **/*.{swift,m,mm,h}
+alwaysApply: false
+---
+
+# No Private iOS APIs
+
+Every API used in native iOS code must be publicly documented by Apple. Private APIs cause App Store rejection or removal.
+
+## Forbidden Patterns
+
+```swift
+// ❌ KVC access to private properties
+UIApplication.shared.value(forKey: "statusBar")
+view.setValue(color, forKeyPath: "_placeholderLabel")
+
+// ❌ Dynamic resolution of private classes / selectors
+NSClassFromString("_UIBackgroundTaskQueue")
+NSSelectorFromString("_privateMethod")
+
+// ❌ Raw message dispatch
+objc_msgSend(...)
+dlopen(...) / dlsym(...)
+```
+
+## Correct Alternatives
+
+| Need | ❌ Wrong | ✅ Right |
+|---|---|---|
+| Placeholder color | `setValue:forKeyPath:` | `attributedPlaceholder` |
+| Nav bar appearance | `_UINavigationBarBackground` | `UINavigationBarAppearance` (iOS 13+) |
+| Status bar style | `value(forKey: "statusBar")` | `UIStatusBarManager` |
+| Device info | Private SystemConfiguration | `UIDevice` |
+
+## AI Code Review Checklist
+
+Before committing AI-generated native code, verify:
+1. No underscore-prefixed identifiers (`_statusBar`, `_UIKeyboard`, etc.)
+2. No KVC access to undocumented properties
+3. No dynamic system class instantiation
+4. If using `performSelector:`, the selector must target a public method

@@ -1,0 +1,12 @@
+node_modules/
+template/node_modules/
+demoapp/
+.DS_Store
+*.log
+.idea/
+.vscode/
+ios/build/
+android/build/
+ios/Pods/
+*.xcuserstate
+.husky/_

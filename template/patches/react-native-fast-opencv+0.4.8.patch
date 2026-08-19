@@ -1,0 +1,32 @@
+diff --git a/node_modules/react-native-fast-opencv/cpp/ConvertImage.cpp b/node_modules/react-native-fast-opencv/cpp/ConvertImage.cpp
+index ea50bc0..da07c31 100644
+--- a/node_modules/react-native-fast-opencv/cpp/ConvertImage.cpp
++++ b/node_modules/react-native-fast-opencv/cpp/ConvertImage.cpp
+@@ -156,6 +156,26 @@ Mat ImageConverter::str2mat(const string& s)
+     vector<uchar> data(decoded_string.begin(), decoded_string.end());
+ 
+     cv::Mat img = cv::imdecode(data, IMREAD_UNCHANGED);
+-  
++    if (img.empty()) {
++        return img;
++    }
++
++    // Semantic mask PNG: 16-bit stores 8-bit labels as value×257.
++    if (img.depth() == CV_16U) {
++        cv::Mat img8;
++        if (img.channels() == 4) {
++            cv::Mat bgr16;
++            cv::cvtColor(img, bgr16, cv::COLOR_BGRA2BGR);
++            bgr16.convertTo(img8, CV_8U, 1.0 / 257.0);
++        } else if (img.channels() == 1) {
++            // 16-bit grayscale → 8-bit (scale 255/65535)
++            img.convertTo(img8, CV_8U, 255.0 / 65535.0);
++        } else {
++            // 16-bit RGB (3 channels) or other
++            img.convertTo(img8, CV_8U, 1.0 / 257.0);
++        }
++        return img8;
++    }
++
+     return img;
+ }

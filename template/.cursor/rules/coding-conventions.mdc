@@ -1,0 +1,111 @@
+---
+description: TypeScript / React Native coding conventions for paint-color-visualizer
+globs: **/*.{ts,tsx}
+alwaysApply: true
+---
+
+# Coding Conventions
+
+## Imports
+
+Always use `@/` path alias. No relative imports between `src/` directories. Use `import type` for type-only imports.
+
+```typescript
+// ✅ GOOD
+import { colors } from '@/theme';
+import { View } from '@/components/ui';
+import { useColorStore } from '@/stores/colorStore';
+import type { AppStackParamList } from '@/navigation/types';
+
+// ❌ BAD
+import { View } from '../../components/ui';
+```
+
+## Exports
+
+Named exports for all modules. `export default` only for top-level entry points (e.g. `App.tsx`). Each component domain directory has a barrel `index.ts`.
+
+```typescript
+// ✅ GOOD
+export function OnboardingScreen() { ... }
+export const Text = forwardRef<RNText, TextProps>(function Text(props, ref) { ... });
+
+// ❌ BAD
+export default function OnboardingScreen() { ... }
+```
+
+## Components
+
+- Use **function declarations** (not arrow functions) for top-level components
+- Use `forwardRef` + `function` for base UI wrappers (`Text`, `View`, `Image`, `ScrollView`)
+- Define styles with `StyleSheet.create()` at file bottom
+- Component files: `PascalCase.tsx`
+
+```typescript
+// ✅ GOOD
+function MyComponent() {
+  return <View style={styles.container}>...</View>;
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+});
+```
+
+## Hooks
+
+- Prefix with `use`, files named `use*.ts` (camelCase)
+- Prefer `useCallback` / `useRef` for stable references
+- Use `useMemo` for derived values
+
+## Zustand Stores
+
+- Store types use `type` (not `interface`)
+- Use `getState()` for non-reactive reads
+- Persist via MMKV `read/write` function pairs
+- Expose snapshot getters alongside the hook:
+
+```typescript
+type ColorState = {
+  currentHex: string;
+  setColor: (hex: string) => void;
+};
+
+export const useColorStore = create<ColorState>((set) => ({ ... }));
+
+export function getCurrentHex(): string {
+  return useColorStore.getState().currentHex;
+}
+```
+
+## Types
+
+- Prefer `type` over `interface`
+- Props: `ComponentNameProps`
+- Navigation params: `*ParamList` unions
+- Catch variables are `unknown` (`useUnknownInCatchVariables`)
+- Array index access is `T | undefined` (`noUncheckedIndexedAccess`)
+
+## Naming
+
+| Category    | Pattern              | Example                     |
+| ----------- | -------------------- | --------------------------- |
+| Components  | `PascalCase.tsx`     | `OnboardingScreen.tsx`      |
+| Hooks       | `use*.ts`            | `useCameraCaptureFlow.ts`   |
+| Stores      | `*Store.ts`          | `colorStore.ts`             |
+| Services    | `camelCase.ts`       | `authSession.ts`            |
+| Types       | `camelCase.ts`       | `user.ts`                   |
+| Constants   | `camelCase.ts`       | `api.ts`                    |
+| Assets/Data | `*Assets.ts`, `*.ts` | `onboardingAssets.ts`       |
+
+## Directory Organization
+
+- **Domain-based** grouping under `components/`: `projects/`, `brands/`, `camera/`
+- Each domain directory may include: components + `index.ts` + `*Assets.ts` + `constants.ts`
+- `hooks/`, `utils/` are flat (no subdirectories)
+- Tests mirror `src/` structure under `__tests__/`
+
+## Internationalization
+
+- Use `useTranslation()` hook via `t()` function
+- Key format: dot-separated namespaces (`home.basics.cards.wooden.title`)

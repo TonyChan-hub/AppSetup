@@ -1,0 +1,29 @@
+{
+  "name": "@pcv/create-rn-template",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "create-rn-template": "./bin/create-rn-template.mjs"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "node -e \"console.log('no tests yet')\"",
+    "prepare": "husky",
+    "postinstall": "patch-package"
+  },
+  "dependencies": {
+    "fs-extra": "^11.3.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "19.8.0",
+    "@commitlint/config-conventional": "19.8.0",
+    "husky": "9.1.7",
+    "patch-package": "8.0.0",
+    "prettier": "2.8.8"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

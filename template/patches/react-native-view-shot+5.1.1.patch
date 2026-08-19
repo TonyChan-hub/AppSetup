@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-native-view-shot/src/index.tsx b/node_modules/react-native-view-shot/src/index.tsx
+index a47e1c1..6ff063a 100644
+--- a/node_modules/react-native-view-shot/src/index.tsx
++++ b/node_modules/react-native-view-shot/src/index.tsx
+@@ -1,6 +1,5 @@
+ import React, {
+   ReactNode,
+-  RefObject,
+   useRef,
+   useCallback,
+   useEffect,
+diff --git a/node_modules/react-native-view-shot/src/specs/NativeRNViewShot.ts b/node_modules/react-native-view-shot/src/specs/NativeRNViewShot.ts
+index 8615175..cf1eeb7 100644
+--- a/node_modules/react-native-view-shot/src/specs/NativeRNViewShot.ts
++++ b/node_modules/react-native-view-shot/src/specs/NativeRNViewShot.ts
+@@ -1,6 +1,6 @@
+ import type {TurboModule} from "react-native";
+ import {TurboModuleRegistry, NativeModules} from "react-native";
+-import {Int32, WithDefault} from "react-native/Libraries/Types/CodegenTypes";
++import {WithDefault} from "react-native/Libraries/Types/CodegenTypes";
+ 
+ // Options stay `Object` (codegen → ReadableMap / NSDictionary).
+ // Narrowing here would force a coordinated change to both native module

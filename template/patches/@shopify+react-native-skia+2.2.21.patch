@@ -1,0 +1,57 @@
+diff --git a/node_modules/@shopify/react-native-skia/apple/MetalContext.h b/node_modules/@shopify/react-native-skia/apple/MetalContext.h
+index d8fa033..37c3c08 100644
+--- a/node_modules/@shopify/react-native-skia/apple/MetalContext.h
++++ b/node_modules/@shopify/react-native-skia/apple/MetalContext.h
+@@ -45,6 +45,11 @@ public:
+   }
+ 
+   sk_sp<SkSurface> MakeOffscreen(int width, int height) {
++    // Reject non-positive sizes before allocating a Metal texture (width/height
++    // of -1 becomes UINT32_MAX and trips Metal validation asserts).
++    if (width <= 0 || height <= 0) {
++      return nullptr;
++    }
+     auto device = _device;
+     auto ctx = new OffscreenRenderContext(device, _directContext, _commandQueue,
+                                           width, height);
+diff --git a/node_modules/@shopify/react-native-skia/apple/RNSkMetalCanvasProvider.mm b/node_modules/@shopify/react-native-skia/apple/RNSkMetalCanvasProvider.mm
+index cc82c5c..59f6d79 100644
+--- a/node_modules/@shopify/react-native-skia/apple/RNSkMetalCanvasProvider.mm
++++ b/node_modules/@shopify/react-native-skia/apple/RNSkMetalCanvasProvider.mm
+@@ -91,6 +91,11 @@
+ };
+ 
+ void RNSkMetalCanvasProvider::setSize(int width, int height) {
++  if (width <= 0 || height <= 0) {
++    // Skip until Yoga/UIKit reports a real size. Snapshotting with an unset
++    // provider returns -1 and previously crashed Metal texture allocation.
++    return;
++  }
+   _layer.frame = CGRectMake(0, 0, width, height);
+   auto w = width * _context->getPixelDensity();
+   auto h = height * _context->getPixelDensity();
+diff --git a/node_modules/@shopify/react-native-skia/cpp/rnskia/RNSkView.h b/node_modules/@shopify/react-native-skia/cpp/rnskia/RNSkView.h
+index 7b35ff6..24afbb9 100644
+--- a/node_modules/@shopify/react-native-skia/cpp/rnskia/RNSkView.h
++++ b/node_modules/@shopify/react-native-skia/cpp/rnskia/RNSkView.h
+@@ -201,10 +201,18 @@ public:
+    Renders the view into an SkImage instead of the screen.
+    */
+   sk_sp<SkImage> makeImageSnapshot(SkRect *bounds) {
++    // Canvas may not have received layout/setSize yet (common on iOS when a
++    // snapshot is taken immediately after mount). getWidth()/getHeight() then
++    // return -1, which Metal interprets as UINT32_MAX and asserts.
++    int width = _canvasProvider->getWidth();
++    int height = _canvasProvider->getHeight();
++    if (width <= 0 || height <= 0) {
++      return nullptr;
++    }
+ 
+     auto provider = std::make_shared<RNSkOffscreenCanvasProvider>(
+-        getPlatformContext(), std::bind(&RNSkView::requestRedraw, this),
+-        _canvasProvider->getWidth(), _canvasProvider->getHeight());
++        getPlatformContext(), std::bind(&RNSkView::requestRedraw, this), width,
++        height);
+ 
+     _renderer->renderImmediate(provider);
+     return provider->makeSnapshot(bounds);

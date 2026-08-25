@@ -1,14 +1,18 @@
 {
   "name": "@bear1210/create-rn-template",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Business-free React Native 0.81.6 project scaffold CLI",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "create-rn-template": "bin/create-rn-template.mjs"
+    "create-rn-template": "bin/create-rn-template.mjs",
+    "setup-rn-android-env": "bin/setup-rn-android-env.mjs",
+    "setup-rn-ios-env": "bin/setup-rn-ios-env.mjs",
+    "check-mobile-env": "bin/check-mobile-env.mjs"
   },
   "files": [
     "bin",
+    "scripts",
     "template"
   ],
   "scripts": {

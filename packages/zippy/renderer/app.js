@@ -1,0 +1,371 @@
+import {
+  renderDbPanel,
+  renderDevicePanel,
+  renderKvPanel,
+  renderNetworkPanel,
+  renderPerfPanel,
+} from './panels/index.js';
+
+const panels = {
+  device: {
+    title: 'Device',
+    desc: 'Connected runtime, app id, and platform info.',
+  },
+  kv: {
+    title: 'MMKV / KV',
+    desc: 'Browse key-value stores from the debug probe.',
+  },
+  db: {
+    title: 'SQLite',
+    desc: 'Inspect tables and run read-only queries.',
+  },
+  network: {
+    title: 'Network',
+    desc: 'Captured requests, timings, and payloads.',
+  },
+  perf: {
+    title: 'Perf',
+    desc: 'FPS, memory, and CPU trends while debugging.',
+  },
+};
+
+const titleEl = document.getElementById('panel-title');
+const descEl = document.getElementById('panel-desc');
+const statusEl = document.getElementById('connection-status');
+const statusDotEl = document.getElementById('status-dot');
+const panelEl = document.getElementById('panel');
+const metaEl = document.getElementById('runtime-meta');
+const navItems = document.querySelectorAll('.nav-item');
+
+const zippy = window.zippy;
+
+const state = {
+  activePanel: 'device',
+  connected: false,
+  host: '127.0.0.1',
+  port: 9876,
+  deviceInfo: null,
+  updateStatus: 'Updates check on startup when packaged.',
+  installUpdateReady: false,
+  instances: [],
+  selectedInstanceId: null,
+  keys: [],
+  selectedKey: null,
+  search: '',
+  entry: null,
+  databases: [],
+  selectedDatabaseId: null,
+  tables: [],
+  selectedTable: null,
+  schema: [],
+  rows: null,
+  networkEvents: [],
+  selectedEventId: null,
+  perf: null,
+};
+
+const actions = {
+  async connect(settings) {
+    setStatus('Connecting…', false);
+    try {
+      await zippy.probe.saveSettings(settings);
+      await zippy.probe.connect(settings);
+      state.host = settings.host;
+      state.port = settings.port;
+      state.connected = true;
+      setStatus(`Connected to ${settings.host}:${settings.port}`, true);
+      state.deviceInfo = await zippy.probe.request('device.info');
+      await refreshPanelData();
+    } catch (error) {
+      state.connected = false;
+      setStatus(error.message || 'Connection failed', false);
+    }
+    render();
+  },
+  async disconnect() {
+    await zippy.probe.disconnect();
+    state.connected = false;
+    setStatus('Disconnected', false);
+    render();
+  },
+  async refreshDevice() {
+    if (!state.connected) {
+      setStatus('Connect to a probe first', false);
+      return;
+    }
+    try {
+      state.deviceInfo = await zippy.probe.request('device.info');
+      render();
+    } catch (error) {
+      setStatus(error.message, false);
+    }
+  },
+  async checkUpdate() {
+    state.updateStatus = 'Checking for updates…';
+    render();
+    await zippy.updater.check();
+  },
+  async installUpdate() {
+    await zippy.updater.install();
+  },
+  async refreshInstances() {
+    if (!state.connected) return;
+    try {
+      const result = await zippy.probe.request('mmkv.listInstances');
+      state.instances = result.instances ?? [];
+      if (!state.selectedInstanceId && state.instances[0]) {
+        state.selectedInstanceId = state.instances[0].id;
+        await actions.selectInstance(state.selectedInstanceId);
+      }
+      render();
+    } catch (error) {
+      setStatus(error.message, false);
+    }
+  },
+  async selectInstance(instanceId) {
+    if (!state.connected) return;
+    try {
+      state.selectedInstanceId = instanceId;
+      const result = await zippy.probe.request('mmkv.listKeys', { instanceId });
+      state.keys = result.keys ?? [];
+      state.selectedKey = null;
+      state.entry = null;
+      render();
+    } catch (error) {
+      setStatus(error.message, false);
+    }
+  },
+  setSearch(value) {
+    state.search = value;
+    render();
+  },
+  async selectKey(key) {
+    if (!state.connected) return;
+    try {
+      state.selectedKey = key;
+      const result = await zippy.probe.request('mmkv.get', {
+        instanceId: state.selectedInstanceId,
+        key,
+      });
+      state.entry = result.entry;
+      render();
+    } catch (error) {
+      setStatus(error.message, false);
+    }
+  },
+  async refreshDatabases() {
+    if (!state.connected) return;
+    try {
+      const result = await zippy.probe.request('sqlite.listDatabases');
+      state.databases = result.databases ?? [];
+      render();
+    } catch (error) {
+      setStatus(error.message, false);
+    }
+  },
+  async selectDatabase(databaseId) {
+    if (!state.connected) return;
+    try {
+      state.selectedDatabaseId = databaseId;
+      const result = await zippy.probe.request('sqlite.listTables', { databaseId });
+      state.tables = result.tables ?? [];
+      state.selectedTable = null;
+      state.schema = [];
+      state.rows = null;
+      render();
+    } catch (error) {
+      setStatus(error.message, false);
+    }
+  },
+  async selectTable(table) {
+    if (!state.connected) return;
+    try {
+      state.selectedTable = table;
+      const schemaResult = await zippy.probe.request('sqlite.schema', {
+        databaseId: state.selectedDatabaseId,
+        table,
+      });
+      state.schema = schemaResult.columns ?? [];
+      await actions.reloadRows();
+    } catch (error) {
+      setStatus(error.message, false);
+    }
+  },
+  async reloadRows() {
+    if (!state.connected || !state.selectedDatabaseId || !state.selectedTable) {
+      return;
+    }
+    try {
+      state.rows = await zippy.probe.request('sqlite.query', {
+        databaseId: state.selectedDatabaseId,
+        table: state.selectedTable,
+      });
+      render();
+    } catch (error) {
+      setStatus(error.message, false);
+    }
+  },
+  async refreshPerf() {
+    if (!state.connected) return;
+    try {
+      state.perf = await zippy.probe.request('perf.latest');
+      render();
+    } catch (error) {
+      setStatus(error.message, false);
+    }
+  },
+};
+
+function setPanel(id) {
+  state.activePanel = id;
+  const panel = panels[id] ?? panels.device;
+  titleEl.textContent = panel.title;
+  descEl.textContent = panel.desc;
+  navItems.forEach((item) => {
+    item.classList.toggle('is-active', item.dataset.panel === id);
+  });
+  render();
+}
+
+function setStatus(text, connected) {
+  state.connected = connected;
+  statusEl.textContent = text;
+  statusDotEl.classList.toggle('is-online', connected);
+}
+
+async function refreshPanelData() {
+  if (!state.connected) {
+    return;
+  }
+  try {
+    if (state.activePanel === 'kv') {
+      await actions.refreshInstances();
+    }
+    if (state.activePanel === 'db') {
+      await actions.refreshDatabases();
+    }
+    if (state.activePanel === 'network') {
+      const result = await zippy.probe.request('network.list');
+      state.networkEvents = result.events ?? [];
+    }
+    if (state.activePanel === 'perf') {
+      await actions.refreshPerf();
+    }
+  } catch (error) {
+    setStatus(error.message || 'Failed to refresh panel', true);
+  }
+  render();
+}
+
+function render() {
+  if (!panelEl) {
+    return;
+  }
+
+  if (state.activePanel === 'device') {
+    renderDevicePanel(panelEl, state, actions);
+    if (state.installUpdateReady) {
+      panelEl.querySelector('#device-install-update')?.removeAttribute('hidden');
+    }
+    return;
+  }
+
+  if (!state.connected) {
+    panelEl.innerHTML = `
+      <div class="empty">
+        <h2>Not connected</h2>
+        <p>Connect to a debug probe from the Device panel first.</p>
+      </div>`;
+    return;
+  }
+
+  if (state.activePanel === 'kv') {
+    renderKvPanel(panelEl, state, actions);
+  } else if (state.activePanel === 'db') {
+    renderDbPanel(panelEl, state, actions);
+  } else if (state.activePanel === 'network') {
+    renderNetworkPanel(panelEl, {
+      ...state,
+      onSelectEvent: (eventId) => {
+        state.selectedEventId = state.selectedEventId === eventId ? null : eventId;
+        render();
+      },
+    });
+  } else if (state.activePanel === 'perf') {
+    renderPerfPanel(panelEl, { ...state, onRefresh: actions.refreshPerf });
+  }
+}
+
+navItems.forEach((item) => {
+  item.addEventListener('click', async () => {
+    setPanel(item.dataset.panel);
+    await refreshPanelData();
+  });
+});
+
+async function bootstrap() {
+  if (zippy && metaEl) {
+    const version = await zippy.getVersion?.().catch?.(() => zippy.version);
+    metaEl.textContent = `v${version} · ${zippy.platform}`;
+  }
+
+  const settings = await zippy.probe.getSettings();
+  state.host = settings.host;
+  state.port = settings.port;
+
+  zippy.probe.onStatus((payload) => {
+    setStatus(payload.connected ? `Connected to ${payload.url}` : 'Waiting for device', payload.connected);
+    render();
+  });
+
+  zippy.probe.onDevice((payload) => {
+    state.deviceInfo = payload;
+    render();
+  });
+
+  zippy.probe.onNetwork((payload) => {
+    state.networkEvents = [payload, ...state.networkEvents.filter((item) => item.id !== payload.id)].slice(0, 500);
+    if (state.activePanel === 'network') {
+      render();
+    }
+  });
+
+  zippy.probe.onPerf((payload) => {
+    state.perf = payload;
+    if (state.activePanel === 'perf') {
+      render();
+    }
+  });
+
+  zippy.probe.onError((payload) => {
+    setStatus(payload.message, false);
+  });
+
+  zippy.updater.onAvailable((info) => {
+    state.updateStatus = `Update ${info.version} available. Downloading…`;
+    render();
+  });
+  zippy.updater.onNotAvailable(() => {
+    state.updateStatus = 'You are on the latest version.';
+    render();
+  });
+  zippy.updater.onProgress((progress) => {
+    state.updateStatus = `Downloading update… ${Math.round(progress.percent)}%`;
+    render();
+  });
+  zippy.updater.onDownloaded((info) => {
+    state.updateStatus = `Update ${info.version} ready to install.`;
+    state.installUpdateReady = true;
+    render();
+  });
+  zippy.updater.onError((payload) => {
+    state.updateStatus = payload.message;
+    render();
+  });
+
+  const status = await zippy.probe.status();
+  setStatus(status.connected ? `Connected to ${status.url}` : 'Waiting for device', status.connected);
+  setPanel('device');
+}
+
+bootstrap();

@@ -1,5 +1,7 @@
 node_modules/
+packages/*/node_modules/
 template/node_modules/
+packages/*/template/node_modules/
 demoapp/
 .DS_Store
 *.log
@@ -10,3 +12,16 @@ android/build/
 ios/Pods/
 *.xcuserstate
 .husky/_
+packages/zippy/dist/
+packages/zippy/out/
+packages/zippy/.release/
+packages/zippy_flutter/.dart_tool/
+packages/zippy_flutter/.packages/
+packages/zippy_flutter/build/
+packages/zippy_flutter/example/.dart_tool/
+packages/zippy_flutter/example/build/
+packages/zippy_flutter/example/android/build/
+packages/zippy_flutter/example/android/.gradle/
+packages/zippy_flutter/pubspec.lock
+packages/zippy_flutter/example/pubspec.lock
+packages/zippy_flutter/dist/

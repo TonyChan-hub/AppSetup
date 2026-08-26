@@ -1,0 +1,70 @@
+name: Release Zippy (macOS)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/zippy/package.json'
+      - 'packages/zippy/**'
+      - 'packages/zippy-probe-protocol/**'
+      - '.github/workflows/zippy-release.yml'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Read package version
+        id: version
+        working-directory: packages/zippy
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=zippy-v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if release tag already exists
+        id: tag_check
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Release tag $TAG already exists."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build macOS app
+        if: steps.tag_check.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run build -w @bear1210/zippy
+
+      - name: Create GitHub Release
+        if: steps.tag_check.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "$TAG" \
+            --repo "${{ github.repository }}" \
+            --title "Zippy v${VERSION}" \
+            --notes "Automated macOS release for @bear1210/zippy v${VERSION}." \
+            packages/zippy/dist/*.dmg packages/zippy/dist/*.zip

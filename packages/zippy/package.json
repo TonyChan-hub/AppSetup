@@ -1,0 +1,83 @@
+{
+  "name": "@bear1210/zippy",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Zippy — desktop inspector for mobile app debug data (MMKV, SQLite, network, perf)",
+  "license": "MIT",
+  "author": "Bear1210",
+  "productName": "Zippy",
+  "main": "desktop/main.cjs",
+  "bin": {
+    "zippy": "bin/zippy.mjs"
+  },
+  "files": [
+    "bin",
+    "desktop",
+    "renderer",
+    "dev-app-update.yml"
+  ],
+  "scripts": {
+    "start": "ELECTRON_RUN_AS_NODE= electron .",
+    "dev": "ELECTRON_RUN_AS_NODE= electron .",
+    "build": "electron-builder --mac",
+    "build:dir": "electron-builder --mac --dir",
+    "test": "node -e \"console.log('no tests yet')\""
+  },
+  "dependencies": {
+    "@bear1210/zippy-probe-protocol": "0.0.1",
+    "electron-store": "^8.2.0",
+    "electron-updater": "^6.6.2",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "electron": "^37.10.3",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.bear1210.zippy",
+    "productName": "Zippy",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "bin/**/*",
+      "desktop/**/*",
+      "renderer/**/*",
+      "dev-app-update.yml",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "artifactName": "Zippy-${version}-${arch}.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "TonyChan-hub",
+        "repo": "AppSetup",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TonyChan-hub/AppSetup.git",
+    "directory": "packages/zippy"
+  },
+  "keywords": [
+    "electron",
+    "devtools",
+    "react-native",
+    "flutter",
+    "mmkv",
+    "sqlite",
+    "zippy"
+  ]
+}

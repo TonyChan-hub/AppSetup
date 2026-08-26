@@ -1,24 +1,49 @@
-# RN Template CLI
+# AppSetup (monorepo)
 
-Business-free React Native scaffold extracted from `paint-color-visualizer-c`.
+Business-free React Native scaffold and macOS mobile toolchain helpers.
 
-## What is included
+## Packages
 
-- React Native 0.81.6 project bootstrap (via RN CLI)
-- Base engineering configs (`tsconfig`, `eslint`, `prettier`, `metro`, `jest`)
-- Infrastructure modules:
-  - `logger`
-  - `i18n`
-  - `sqlite` (`react-native-quick-sqlite`)
-  - `mmkv` (`react-native-mmkv`)
-- Git quality gates:
-  - `commitlint`
-  - `husky`
-  - `lint-staged`
-- Cursor assets:
-  - `.cursor/rules`
-  - `.cursor/skills`
-- `patch-package` + `patches/`
+| Package | npm | Version source |
+| ------- | --- | -------------- |
+| [`@bear1210/create-rn-template`](./packages/create-rn-template) | published | `packages/create-rn-template/package.json` |
+| [`@bear1210/zippy`](./packages/zippy) | not on npm (GitHub Releases / Electron) | `packages/zippy/package.json` |
+| [`@bear1210/zippy-probe-protocol`](./packages/zippy-probe-protocol) | published (shared probe protocol) | `packages/zippy-probe-protocol/package.json` |
+| [`zippy_flutter`](./packages/zippy_flutter) | Flutter probe SDK (path / pub) | `packages/zippy_flutter/pubspec.yaml` |
+
+Root `package.json` is **private** (`@bear1210/app-setup@0.0.0`) and only orchestrates workspaces. Bump and publish npm versions on the packages that map to npm libraries—not the repo root. Zippy is private and ships via GitHub Releases (`zippy-release.yml`).
+
+```bash
+# bump CLI (example)
+npm version patch -w @bear1210/create-rn-template
+# bump Zippy desktop (triggers macOS release on push to main)
+npm version patch -w @bear1210/zippy
+git push && git push --tags
+# npm packages publish on push to main when their version is newer than npm
+```
+
+## Layout
+
+```
+packages/
+  create-rn-template/   # CLI + template + setup/check scripts
+    bin/
+    scripts/
+    template/
+  zippy/                # Electron desktop inspector
+    bin/
+    desktop/
+    renderer/
+  zippy-probe-protocol/ # Shared JSON probe protocol
+  zippy_flutter/        # Flutter debug probe SDK
+```
+
+## Zippy (desktop)
+
+```bash
+npm install
+npm run zippy
+```
 
 ## CLI usage
 
@@ -30,6 +55,15 @@ Optional flags:
 
 - `--skip-install` skip npm install in generated app
 - `--package=<applicationId>` set Android package name when initializing app
+
+### What the scaffold includes
+
+- React Native 0.81.6 project bootstrap (via RN CLI)
+- Base engineering configs (`tsconfig`, `eslint`, `prettier`, `metro`, `jest`)
+- Infrastructure modules: `logger`, `i18n`, `sqlite` (`react-native-quick-sqlite`), `mmkv` (`react-native-mmkv`)
+- Git quality gates: `commitlint`, `husky`, `lint-staged`
+- Cursor assets: `.cursor/rules`, `.cursor/skills`
+- `patch-package` + `patches/`
 
 ## macOS environment setup
 
@@ -68,6 +102,15 @@ npx -p @bear1210/create-rn-template check-mobile-env --strict-flutter
 ```
 
 Reports Common / Android / iOS / React Native / Flutter readiness. Flutter is optional unless `--strict-flutter` is set.
+
+## Local development
+
+```bash
+npm install
+npm run check-mobile-env
+npm run create-rn-template -- myNewApp --package=com.example.mynewapp --skip-install
+```
+
 ## Generated app shape
 
 - Keeps the familiar `src`-based structure

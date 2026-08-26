@@ -1,0 +1,35 @@
+name: zippy_flutter
+description: Flutter debug probe SDK for Zippy desktop inspector (MMKV, SQLite, network, perf).
+version: 0.0.1
+homepage: https://github.com/TonyChan-hub/AppSetup
+
+environment:
+  sdk: ^3.5.0
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  device_info_plus: ^11.2.0
+  dio: ^5.7.0
+  package_info_plus: ^8.1.2
+  path: ^1.9.0
+  path_provider: ^2.1.5
+  shelf: ^1.4.2
+  shelf_web_socket: ^2.0.1
+  sqflite: ^2.4.1
+  web_socket_channel: ^3.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.bear1210.zippy_flutter
+        pluginClass: ZippyFlutterPlugin
+      ios:
+        pluginClass: ZippyFlutterPlugin

@@ -1,0 +1,27 @@
+{
+  "name": "@bear1210/zippy-probe-protocol",
+  "version": "0.0.1",
+  "description": "Shared JSON message protocol for Zippy mobile probe and desktop inspector",
+  "license": "MIT",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "constants.js",
+    "messages.js"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TonyChan-hub/AppSetup.git",
+    "directory": "packages/zippy-probe-protocol"
+  }
+}

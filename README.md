@@ -1,13 +1,14 @@
 # AppSetup (monorepo)
 
-Business-free React Native scaffold and macOS mobile toolchain helpers.
+Business-free React Native / Flutter scaffolds and macOS mobile toolchain helpers.
 
 ## Packages
 
 | Package | npm | Version source |
 | ------- | --- | -------------- |
 | [`@bear1210/create-rn-template`](./packages/create-rn-template) | published | `packages/create-rn-template/package.json` |
-| [`@bear1210/zippy`](./packages/zippy) | not on npm (GitHub Releases / Electron) | `packages/zippy/package.json` |
+| [`@bear1210/create-flutter-template`](./packages/create-flutter-template) | published | `packages/create-flutter-template/package.json` |
+| [`@bear1210/zippy`](./packages/zippy) | not on npm (GitHub Releases / Tauri) | `packages/zippy/package.json` |
 | [`@bear1210/zippy-probe-protocol`](./packages/zippy-probe-protocol) | published (shared probe protocol) | `packages/zippy-probe-protocol/package.json` |
 | [`zippy_flutter`](./packages/zippy_flutter) | Flutter probe SDK (path / pub) | `packages/zippy_flutter/pubspec.yaml` |
 
@@ -16,6 +17,7 @@ Root `package.json` is **private** (`@bear1210/app-setup@0.0.0`) and only orches
 ```bash
 # bump CLI (example)
 npm version patch -w @bear1210/create-rn-template
+npm version patch -w @bear1210/create-flutter-template
 # bump Zippy desktop (triggers macOS release on push to main)
 npm version patch -w @bear1210/zippy
 git push && git push --tags
@@ -26,19 +28,24 @@ git push && git push --tags
 
 ```
 packages/
-  create-rn-template/   # CLI + template + setup/check scripts
+  create-rn-template/       # RN CLI + template + setup/check scripts
     bin/
     scripts/
     template/
-  zippy/                # Electron desktop inspector
+  create-flutter-template/  # Flutter CLI + business-free template
     bin/
-    desktop/
-    renderer/
-  zippy-probe-protocol/ # Shared JSON probe protocol
-  zippy_flutter/        # Flutter debug probe SDK
+    template/
+  zippy/                    # Tauri desktop inspector (Rust + Vite/TS)
+    bin/
+    src/
+    src-tauri/
+  zippy-probe-protocol/     # Shared JSON probe protocol
+  zippy_flutter/            # Flutter debug probe SDK
 ```
 
 ## Zippy (desktop)
+
+Requires Node 20+ and a Rust stable toolchain.
 
 ```bash
 npm install
@@ -46,6 +53,8 @@ npm run zippy
 ```
 
 ## CLI usage
+
+### React Native
 
 ```bash
 npx @bear1210/create-rn-template myNewApp --package=com.example.mynewapp
@@ -56,7 +65,7 @@ Optional flags:
 - `--skip-install` skip npm install in generated app
 - `--package=<applicationId>` set Android package name when initializing app
 
-### What the scaffold includes
+### What the RN scaffold includes
 
 - React Native 0.81.6 project bootstrap (via RN CLI)
 - Base engineering configs (`tsconfig`, `eslint`, `prettier`, `metro`, `jest`)
@@ -64,6 +73,30 @@ Optional flags:
 - Git quality gates: `commitlint`, `husky`, `lint-staged`
 - Cursor assets: `.cursor/rules`, `.cursor/skills`
 - `patch-package` + `patches/`
+
+### Flutter
+
+```bash
+npx @bear1210/create-flutter-template myNewApp --org=com.example
+cd myNewApp && flutter run
+```
+
+Optional flags:
+
+- `--skip-install` skip `flutter pub get` / `gen-l10n` / npm tooling install
+- `--org=<reverse-domain>` set Android/iOS organization (default `com.example`)
+
+Full CLI docs: [`packages/create-flutter-template/README.md`](./packages/create-flutter-template/README.md).
+
+### What the Flutter scaffold includes
+
+- Flutter project bootstrap (via `flutter create`, Android + iOS)
+- Layered `lib/` layout: `pages` / `router` / `providers` / `datasources` / `repositories` / `entities` / `services` / `core` / `l10n`
+- Infrastructure: Dio + auth interceptor hook, sqflite logger, ScreenUtil theme (Poppins), GoRouter, Provider, permission helpers
+- `package.json` scripts for analyze / format / build / `gen:l10n`
+- Git quality gates: `commitlint`, `husky`
+- Cursor rules for architecture / Dart style / l10n / iOS private-API
+- No business domain, Firebase, IAP, or OAuth credentials
 
 ## macOS environment setup
 
@@ -109,10 +142,12 @@ Reports Common / Android / iOS / React Native / Flutter readiness. Flutter is op
 npm install
 npm run check-mobile-env
 npm run create-rn-template -- myNewApp --package=com.example.mynewapp --skip-install
+npm run create-flutter-template -- myFlutterApp --org=com.example --skip-install
 ```
 
 ## Generated app shape
 
-- Keeps the familiar `src`-based structure
-- Removes all previous business-domain code
-- Leaves only minimal `Home` screen and app shell so you can start feature development directly
+- **RN**: familiar `src`-based structure, minimal `Home` screen + infra shell
+- **Flutter**: layered `lib/` (same shape as production Flutter apps in this org), minimal `Home` + logs screens, no business domain
+
+Generated Flutter apps also ship a project `README.md` under the app root with run / structure / i18n / script notes.

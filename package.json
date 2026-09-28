@@ -11,12 +11,14 @@
     "lint": "npm run lint -w @bear1210/create-rn-template",
     "test": "npm run test --workspaces --if-present",
     "create-rn-template": "npm exec -w @bear1210/create-rn-template -- create-rn-template",
+    "create-flutter-template": "npm exec -w @bear1210/create-flutter-template -- create-flutter-template",
     "setup-rn-android-env": "npm exec -w @bear1210/create-rn-template -- setup-rn-android-env",
     "setup-rn-ios-env": "npm exec -w @bear1210/create-rn-template -- setup-rn-ios-env",
     "check-mobile-env": "npm exec -w @bear1210/create-rn-template -- check-mobile-env",
     "zippy": "npm exec -w @bear1210/zippy -- zippy",
     "zippy:build": "npm run build -w @bear1210/zippy",
     "version:create-rn-template": "npm version -w @bear1210/create-rn-template",
+    "version:create-flutter-template": "npm version -w @bear1210/create-flutter-template",
     "version:zippy": "npm version -w @bear1210/zippy"
   },
   "engines": {

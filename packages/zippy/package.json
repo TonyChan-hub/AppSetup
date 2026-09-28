@@ -5,63 +5,30 @@
   "description": "Zippy — desktop inspector for mobile app debug data (MMKV, SQLite, network, perf)",
   "license": "MIT",
   "author": "Bear1210",
-  "productName": "Zippy",
-  "main": "desktop/main.cjs",
+  "type": "module",
   "bin": {
     "zippy": "bin/zippy.mjs"
   },
-  "files": [
-    "bin",
-    "desktop",
-    "renderer",
-    "dev-app-update.yml"
-  ],
   "scripts": {
-    "start": "ELECTRON_RUN_AS_NODE= electron .",
-    "dev": "ELECTRON_RUN_AS_NODE= electron .",
-    "build": "electron-builder --mac",
-    "build:dir": "electron-builder --mac --dir",
+    "dev": "tauri dev",
+    "dev:vite": "vite",
+    "build": "tauri build",
+    "build:vite": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
     "test": "node -e \"console.log('no tests yet')\""
   },
   "dependencies": {
     "@bear1210/zippy-probe-protocol": "0.0.1",
-    "electron-store": "^8.2.0",
-    "electron-updater": "^6.6.2",
-    "ws": "^8.18.3"
+    "@tauri-apps/api": "^2.9.0",
+    "@tauri-apps/plugin-process": "^2.3.0",
+    "@tauri-apps/plugin-store": "^2.4.0",
+    "@tauri-apps/plugin-updater": "^2.9.0"
   },
   "devDependencies": {
-    "electron": "^37.10.3",
-    "electron-builder": "^26.0.12"
-  },
-  "build": {
-    "appId": "com.bear1210.zippy",
-    "productName": "Zippy",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "bin/**/*",
-      "desktop/**/*",
-      "renderer/**/*",
-      "dev-app-update.yml",
-      "package.json"
-    ],
-    "mac": {
-      "category": "public.app-category.developer-tools",
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "artifactName": "Zippy-${version}-${arch}.${ext}"
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "TonyChan-hub",
-        "repo": "AppSetup",
-        "releaseType": "release"
-      }
-    ]
+    "@tauri-apps/cli": "^2.9.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.7"
   },
   "engines": {
     "node": ">=20"
@@ -72,7 +39,7 @@
     "directory": "packages/zippy"
   },
   "keywords": [
-    "electron",
+    "tauri",
     "devtools",
     "react-native",
     "flutter",

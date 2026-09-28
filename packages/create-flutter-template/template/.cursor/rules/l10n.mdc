@@ -1,0 +1,24 @@
+---
+description: Localization (ARB) conventions
+globs: lib/l10n/**
+alwaysApply: false
+---
+
+# Localization
+
+- Source strings: `lib/l10n/app_en.arb`.
+- Access in UI: `AppLocalizations.of(context)!` or `final l10n = AppLocalizations.of(context)!`.
+- After editing ARB: run `flutter gen-l10n` (or `npm run gen:l10n`).
+
+## Adding strings
+
+```json
+"homeTitle": "Home",
+"@homeTitle": {
+  "description": "Home page title"
+}
+```
+
+- Keys: camelCase, descriptive prefix.
+- Always add `@key` metadata with `description`.
+- Plural / params: use ARB placeholders `{count}`, `{name}`.

@@ -1,0 +1,88 @@
+{
+  "@@locale": "en",
+  "appTitle": "Flutter Template",
+  "@appTitle": {
+    "description": "MaterialApp title"
+  },
+  "homeTitle": "Flutter Template",
+  "@homeTitle": {
+    "description": "Home page title"
+  },
+  "homeSubtitle": "Start your business features here.",
+  "@homeSubtitle": {
+    "description": "Home page subtitle"
+  },
+  "counterLabel": "Counter: {count}",
+  "@counterLabel": {
+    "description": "Demo counter label",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "increment": "Increment",
+  "@increment": {
+    "description": "Demo increment button"
+  },
+  "openLogs": "Open logs",
+  "@openLogs": {
+    "description": "Button to open local logs page"
+  },
+  "localLogs": "Local logs",
+  "@localLogs": {
+    "description": "Logs page title"
+  },
+  "keywordHint": "Keyword",
+  "@keywordHint": {
+    "description": "Logs search field hint"
+  },
+  "level": "Level",
+  "@level": {
+    "description": "Log level filter label"
+  },
+  "category": "Category",
+  "@category": {
+    "description": "Log category filter label"
+  },
+  "all": "All",
+  "@all": {
+    "description": "Filter option for all items"
+  },
+  "noLogs": "No logs yet",
+  "@noLogs": {
+    "description": "Empty logs list message"
+  },
+  "exportJson": "Export JSON",
+  "@exportJson": {
+    "description": "Export logs as JSON"
+  },
+  "exportCsv": "Export CSV",
+  "@exportCsv": {
+    "description": "Export logs as CSV"
+  },
+  "clear": "Clear",
+  "@clear": {
+    "description": "Clear logs action"
+  },
+  "shareLogsText": "App logs",
+  "@shareLogsText": {
+    "description": "Share sheet text for exported logs"
+  },
+  "openLogsPromptTitle": "Open logs?",
+  "@openLogsPromptTitle": {
+    "description": "Shake-to-open logs dialog title"
+  },
+  "openLogsPromptMessage": "Open the local debug logs screen?",
+  "@openLogsPromptMessage": {
+    "description": "Shake-to-open logs dialog body"
+  },
+  "openLogsCancel": "Cancel",
+  "@openLogsCancel": {
+    "description": "Cancel opening logs"
+  },
+  "openLogsConfirm": "Open",
+  "@openLogsConfirm": {
+    "description": "Confirm opening logs"
+  }
+}

@@ -1,20 +1,16 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
-const require = createRequire(import.meta.url);
-const electronPath = require('electron');
 const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const tauriCli = path.join(appRoot, 'node_modules', '@tauri-apps', 'cli', 'tauri.js');
 
-const env = { ...process.env };
-delete env.ELECTRON_RUN_AS_NODE;
-
-const child = spawn(electronPath, [appRoot, ...process.argv.slice(2)], {
+const child = spawn(process.execPath, [tauriCli, 'dev', ...process.argv.slice(2)], {
+  cwd: appRoot,
   stdio: 'inherit',
-  env,
+  env: process.env,
 });
 
 child.on('exit', (code, signal) => {

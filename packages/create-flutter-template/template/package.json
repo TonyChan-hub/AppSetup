@@ -1,0 +1,30 @@
+{
+  "name": "flutter-template-app",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "setup": "flutter pub get",
+    "clean": "flutter clean",
+    "clean:all": "flutter clean && flutter pub get",
+    "devices": "flutter devices",
+    "analyze": "flutter analyze",
+    "format": "dart format lib test",
+    "format:check": "dart format --set-exit-if-changed lib test",
+    "test": "flutter test",
+    "run": "flutter run",
+    "dev": "flutter run",
+    "run:android": "flutter run -d android",
+    "run:ios": "flutter run -d ios",
+    "run:api": "flutter run --dart-define=API_BASE_URL=$API_BASE_URL",
+    "build:apk": "flutter build apk --release --split-per-abi --target-platform=android-arm,android-arm64",
+    "build:appbundle": "flutter build appbundle --release --target-platform=android-arm,android-arm64",
+    "build:ios": "flutter build ios --release",
+    "build:ipa": "flutter build ipa --release",
+    "gen:l10n": "flutter gen-l10n"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "husky": "^9.1.7"
+  }
+}

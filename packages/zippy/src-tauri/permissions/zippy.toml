@@ -1,0 +1,65 @@
+[[permission]]
+identifier = "allow-probe-get-settings"
+description = "Read saved probe host/port settings"
+commands.allow = ["probe_get_settings"]
+
+[[permission]]
+identifier = "allow-probe-save-settings"
+description = "Persist probe host/port settings"
+commands.allow = ["probe_save_settings"]
+
+[[permission]]
+identifier = "allow-probe-connect"
+description = "Connect to a mobile probe WebSocket"
+commands.allow = ["probe_connect"]
+
+[[permission]]
+identifier = "allow-probe-disconnect"
+description = "Disconnect from the mobile probe"
+commands.allow = ["probe_disconnect"]
+
+[[permission]]
+identifier = "allow-probe-status"
+description = "Read current probe connection status"
+commands.allow = ["probe_status"]
+
+[[permission]]
+identifier = "allow-probe-request"
+description = "Send an RPC request to the connected probe"
+commands.allow = ["probe_request"]
+
+[[permission]]
+identifier = "allow-app-get-version"
+description = "Read the application version"
+commands.allow = ["app_get_version"]
+
+[[permission]]
+identifier = "allow-app-get-platform"
+description = "Read the host OS platform"
+commands.allow = ["app_get_platform"]
+
+[[permission]]
+identifier = "allow-updater-check"
+description = "Check for and download application updates"
+commands.allow = ["updater_check"]
+
+[[permission]]
+identifier = "allow-updater-install"
+description = "Restart to install a downloaded update"
+commands.allow = ["updater_install"]
+
+[[set]]
+identifier = "allow-zippy"
+description = "All Zippy desktop commands"
+permissions = [
+  "allow-probe-get-settings",
+  "allow-probe-save-settings",
+  "allow-probe-connect",
+  "allow-probe-disconnect",
+  "allow-probe-status",
+  "allow-probe-request",
+  "allow-app-get-version",
+  "allow-app-get-platform",
+  "allow-updater-check",
+  "allow-updater-install"
+]

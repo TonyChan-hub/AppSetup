@@ -1,0 +1,39 @@
+---
+description: Dart / Flutter coding conventions for this project
+globs: lib/**/*.dart
+alwaysApply: false
+---
+
+# Dart & Flutter style
+
+## Analyzer
+
+Follow `analysis_options.yaml` (`flutter_lints`). Run `flutter analyze` on touched paths.
+
+## UI & layout
+
+- User-visible strings: `AppLocalizations` via `lib/l10n/app_en.arb` — no hardcoded English in widgets.
+- Prefer `flutter_screenutil` (`.w`, `.h`, `.sp`, `.r`) on layout pages.
+- Colors / spacing: prefer `AppConstants` and `AppTheme` from `lib/core/`.
+
+## State & navigation
+
+- App-wide state: `Provider` + `ChangeNotifier` in `lib/providers/`.
+- Navigation: `go_router`; `context.push` / `context.go` — routes live in `app_router.dart`.
+
+## Networking & errors
+
+- HTTP: `DioClient` + datasources in `lib/datasources/`.
+- Throw / catch `ApiException`.
+
+## Widgets
+
+- Prefer `const` constructors and `const` widgets where possible.
+- Private widgets: `_MyWidget` at bottom of file or in same folder.
+- Page files stay focused; extract reusable pieces to `lib/widgets/`.
+
+## Avoid
+
+- `print` / `debugPrint` for production paths — use `LocalLogger` when logging is needed.
+- Large unrelated refactors bundled with a small fix.
+- Importing `pages/` from `widgets/` or `entities/` (dependency flows down: pages → widgets → entities).

@@ -1,4 +1,0 @@
-provider: github
-owner: TonyChan-hub
-repo: AppSetup
-updaterCacheDir: ../.release/updater-cache

@@ -1,0 +1,50 @@
+---
+description: Flutter template lib/ layout and where to put new code
+alwaysApply: true
+---
+
+# Project architecture
+
+Flutter app (`flutter_template_app`). Keep `lib/` organized by layer + feature, not `features/*/presentation`.
+
+## Directory map
+
+```
+lib/
+├── main.dart, app.dart
+├── pages/              # Pages used by app_router only
+├── router/             # GoRouter
+├── widgets/
+│   └── common/         # Shared widgets
+├── providers/          # ChangeNotifiers; register in app_providers.dart
+├── datasources/<feature>/
+├── repositories/<feature>/
+├── entities/<feature>/
+├── services/<feature>/
+├── core/               # Infra only: network, theme, logging, permissions
+└── l10n/               # ARB + generated localizations
+```
+
+## Adding code
+
+| What | Where |
+|------|--------|
+| New route page | `lib/pages/` → register in `lib/router/app_router.dart` |
+| Page sub-widget | `lib/widgets/<area>/` or `lib/widgets/common/` |
+| API / mock source | `lib/datasources/<feature>/` |
+| Repository | `lib/repositories/<feature>/` |
+| Model / enum | `lib/entities/<feature>/` |
+| Business logic | `lib/services/<feature>/` |
+| App state | `lib/providers/` + `app_providers.dart` |
+
+Do not recreate `lib/features/` or nest pages under feature folders.
+
+## Imports
+
+- Cross-folder: `package:flutter_template_app/...` (not deep relative `../../`).
+- Same subfolder widgets may use relative imports.
+
+## Scope
+
+- Minimal diffs; don't refactor unrelated code.
+- Match existing file naming (`snake_case.dart`, `PascalCase` types).

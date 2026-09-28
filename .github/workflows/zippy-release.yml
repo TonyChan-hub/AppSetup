@@ -27,6 +27,9 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
@@ -52,9 +55,32 @@ jobs:
 
       - name: Build macOS app
         if: steps.tag_check.outputs.skip != 'true'
+        working-directory: packages/zippy
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run build -w @bear1210/zippy
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npm run build
+
+      - name: Write updater latest.json
+        if: steps.tag_check.outputs.skip != 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          ARTIFACT_DIR="packages/zippy/src-tauri/target/release/bundle"
+          # Prefer macos updater tarballs directory when present
+          if [ -d "$ARTIFACT_DIR/macos" ]; then
+            ARTIFACT_DIR="$ARTIFACT_DIR/macos"
+          fi
+          node packages/zippy/scripts/write-latest-json.mjs \
+            "$VERSION" \
+            "$ARTIFACT_DIR" \
+            "$TAG" \
+            "${{ github.repository }}"
+          # Also copy latest.json next to dmg outputs for easier upload globs
+          mkdir -p packages/zippy/src-tauri/target/release/bundle/dmg
+          cp "$ARTIFACT_DIR/latest.json" packages/zippy/src-tauri/target/release/bundle/dmg/latest.json 2>/dev/null || true
+          cp "$ARTIFACT_DIR/latest.json" packages/zippy/src-tauri/target/release/bundle/latest.json
 
       - name: Create GitHub Release
         if: steps.tag_check.outputs.skip != 'true'
@@ -63,8 +89,25 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
+          shopt -s nullglob
+          ASSETS=()
+          for pattern in \
+            packages/zippy/src-tauri/target/release/bundle/dmg/*.dmg \
+            packages/zippy/src-tauri/target/release/bundle/macos/*.app.tar.gz \
+            packages/zippy/src-tauri/target/release/bundle/macos/*.app.tar.gz.sig \
+            packages/zippy/src-tauri/target/release/bundle/latest.json
+          do
+            for file in $pattern; do
+              ASSETS+=("$file")
+            done
+          done
+          if [ ${#ASSETS[@]} -eq 0 ]; then
+            echo "No release assets found"
+            find packages/zippy/src-tauri/target/release/bundle -maxdepth 3 -type f || true
+            exit 1
+          fi
           gh release create "$TAG" \
             --repo "${{ github.repository }}" \
             --title "Zippy v${VERSION}" \
-            --notes "Automated macOS release for @bear1210/zippy v${VERSION}." \
-            packages/zippy/dist/*.dmg packages/zippy/dist/*.zip
+            --notes "Automated macOS release for @bear1210/zippy v${VERSION} (Tauri)." \
+            "${ASSETS[@]}"

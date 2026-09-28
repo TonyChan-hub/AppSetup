@@ -1,0 +1,38 @@
+{
+  "name": "@bear1210/create-flutter-template",
+  "version": "0.1.0",
+  "description": "Business-free Flutter project scaffold CLI (architecture from production Flutter apps)",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-flutter-template": "bin/create-flutter-template.mjs"
+  },
+  "files": [
+    "bin",
+    "template"
+  ],
+  "scripts": {
+    "lint": "node -e \"console.log('no lint configured')\"",
+    "test": "node -e \"console.log('no tests yet')\""
+  },
+  "dependencies": {
+    "fs-extra": "^11.3.2"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TonyChan-hub/AppSetup.git",
+    "directory": "packages/create-flutter-template"
+  },
+  "keywords": [
+    "flutter",
+    "template",
+    "scaffold",
+    "cli"
+  ]
+}

@@ -15,6 +15,10 @@ ios/Pods/
 packages/zippy/dist/
 packages/zippy/out/
 packages/zippy/.release/
+packages/zippy/src-tauri/target/
+packages/zippy/src-tauri/.updater-key
+packages/zippy/src-tauri/.updater-key.pub
+packages/zippy/src-tauri/gen/
 packages/zippy_flutter/.dart_tool/
 packages/zippy_flutter/.packages/
 packages/zippy_flutter/build/

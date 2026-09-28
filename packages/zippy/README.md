@@ -1,6 +1,12 @@
 # @bear1210/zippy
 
-Electron desktop inspector for **Zippy** — mobile app debug data (MMKV / SQLite / network / perf).
+Tauri 2 desktop inspector for **Zippy** — mobile app debug data (MMKV / SQLite / network / perf).
+
+## Prerequisites
+
+- Node.js 20+
+- Rust stable (`rustup`)
+- macOS (primary target)
 
 ## Develop
 
@@ -11,12 +17,25 @@ npm install
 npm run zippy
 ```
 
-> If your shell exports `ELECTRON_RUN_AS_NODE=1` (common in some IDE sandboxes), clear it before launching, or use `npm run zippy` / `bin/zippy.mjs` which unset it for the Electron child process.
+Or from this package:
 
-Build macOS artifacts locally:
+```bash
+npm run dev -w @bear1210/zippy
+```
+
+## Build
 
 ```bash
 npm run zippy:build
+```
+
+Release builds sign updater artifacts with `TAURI_SIGNING_PRIVATE_KEY` (and optional `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`). Generate a keypair once:
+
+```bash
+cd packages/zippy
+npx tauri signer generate -w src-tauri/.updater-key --ci -p ""
+# put the printed public key into src-tauri/tauri.conf.json → plugins.updater.pubkey
+# store the private key contents in GitHub Actions secret TAURI_SIGNING_PRIVATE_KEY
 ```
 
 ## Connect to a Flutter probe
@@ -29,9 +48,9 @@ See [`../zippy_flutter/README.md`](../zippy_flutter/README.md) for SDK integrati
 
 ## Auto-update
 
-Packaged macOS builds use `electron-updater` with GitHub Releases (`zippy-v{version}` tags). Bump this package version and push to `main` to trigger [`.github/workflows/zippy-release.yml`](../../.github/workflows/zippy-release.yml).
+Packaged macOS builds use `tauri-plugin-updater` with GitHub Releases (`zippy-v{version}` tags) and `latest.json`. Bump this package version and push to `main` to trigger [`.github/workflows/zippy-release.yml`](../../.github/workflows/zippy-release.yml).
 
-Unsigned builds are fine for internal Phase 1 testing. macOS Gatekeeper may require right-click → Open the first time.
+Unsigned Apple builds are fine for internal Phase 1 testing. macOS Gatekeeper may require right-click → Open the first time. Updater signatures are separate from Apple code signing.
 
 ## Version
 

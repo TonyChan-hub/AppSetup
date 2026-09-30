@@ -5,14 +5,25 @@ Scaffold a business-free React Native 0.81 project with TypeScript, infra module
 ## Usage
 
 ```bash
-npx @bear1210/create-rn-template <project-name> [--package=<id>] [--skip-install]
+npx @bear1210/create-rn-template <ProjectName> [--package=<id>] [--skip-install]
 ```
+
+### Project name rules
+
+React Native CLI requires a **JS identifier** (same rule as `npx @react-native-community/cli init`):
+
+| Allowed | Not allowed |
+| ------- | ----------- |
+| `MyNewApp`, `myNewApp`, `AppSetupRn` | `my-new-app` (kebab-case) |
+| Letters + digits, **must start with a letter** | `my_new_app` (snake_case), spaces, leading digits |
+
+If the name is invalid, this CLI exits early with an error instead of failing inside RN CLI.
 
 ### Example
 
 ```bash
-npx @bear1210/create-rn-template myNewApp --package=com.example.mynewapp
-cd myNewApp
+npx @bear1210/create-rn-template MyNewApp --package=com.example.mynewapp
+cd MyNewApp
 npm start
 ```
 
@@ -20,7 +31,7 @@ npm start
 
 | Flag | Description |
 | ---- | ----------- |
-| `<project-name>` | Output directory / app name |
+| `<ProjectName>` | Output directory / app name (JS identifier only) |
 | `--package=<applicationId>` | Android applicationId when initializing |
 | `--skip-install` | Skip `npm install` in the generated app |
 
@@ -28,7 +39,7 @@ npm start
 
 ```bash
 npm install
-npm run create-rn-template -- myNewApp --package=com.example.mynewapp
+npm run create-rn-template -- MyNewApp --package=com.example.mynewapp
 ```
 
 ## What happens

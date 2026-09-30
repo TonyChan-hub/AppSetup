@@ -87,8 +87,9 @@ Text(l10n.homeTitle);
 
 ## Dev notes
 
+- **Zippy**: debug builds start `ZippyProbe` (see `packages/zippy_flutter`). Connect the Zippy desktop app to `device-lan-ip:9876`.
 - **Logs**: shake the device ~3 times in **debug** builds, or open `/logs` from Home. Export JSON/CSV from the logs screen.
 - **Permissions**: camera / photo library use the system dialogs (`permission_handler` / `gal`). Usage strings are set in `Info.plist` / `AndroidManifest.xml` at scaffold time.
 - **Theme**: `AppTheme` + Poppins; layout scaling via `flutter_screenutil` (design size 390×844).
-- **Network**: `DioClient` in `lib/core/network/`. Wire `refreshAuthSession` when you add real auth.
+- **Network**: `DioClient` in `lib/core/network/` (Zippy Dio interceptor attached in debug). Wire `refreshAuthSession` when you add real auth.
 - **Git hooks**: `husky` + `commitlint` (conventional commits) after `npm install`.

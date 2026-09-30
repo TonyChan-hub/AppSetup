@@ -23,7 +23,8 @@ npm run docs:build    # static site → docs/.vitepress/dist
 | [`@bear1210/create-flutter-template`](./packages/create-flutter-template) | published | `packages/create-flutter-template/package.json` |
 | [`@bear1210/zippy`](./packages/zippy) | not on npm (GitHub Releases / Tauri) | `packages/zippy/package.json` |
 | [`@bear1210/zippy-probe-protocol`](./packages/zippy-probe-protocol) | published (shared probe protocol) | `packages/zippy-probe-protocol/package.json` |
-| [`zippy_flutter`](./packages/zippy_flutter) | Flutter probe SDK (path / pub) | `packages/zippy_flutter/pubspec.yaml` |
+| [`@bear1210/zippy-rn`](./packages/zippy_rn) | published (RN probe SDK) | `packages/zippy_rn/package.json` |
+| [`zippy_flutter`](./packages/zippy_flutter) | Flutter probe SDK (zip / path) | `packages/zippy_flutter/pubspec.yaml` |
 
 Root `package.json` is **private** (`@bear1210/app-setup@0.0.0`) and only orchestrates workspaces. Bump and publish npm versions on the packages that map to npm libraries—not the repo root. Zippy is private and ships via GitHub Releases (`zippy-release.yml`).
 
@@ -48,12 +49,14 @@ packages/
   create-flutter-template/  # Flutter CLI + business-free template
     bin/
     template/
+    vendor/                 # zippy_flutter-*.zip for npx scaffolds
   zippy/                    # Tauri desktop inspector (Rust + Vite/TS)
     bin/
     src/
     src-tauri/
   zippy-probe-protocol/     # Shared JSON probe protocol
-  zippy_flutter/            # Flutter debug probe SDK
+  zippy_rn/                 # React Native debug probe SDK (npm)
+  zippy_flutter/            # Flutter debug probe SDK (zip / path)
 ```
 
 ## Zippy (desktop)
@@ -70,8 +73,10 @@ npm run zippy
 ### React Native
 
 ```bash
-npx @bear1210/create-rn-template myNewApp --package=com.example.mynewapp
+npx @bear1210/create-rn-template MyNewApp --package=com.example.mynewapp
 ```
+
+`<ProjectName>` must be a **JS identifier** (e.g. `MyNewApp`). Do **not** use kebab-case (`my-new-app`) or snake_case (`my_new_app`) — RN CLI will reject them. See [Create RN](docs/guide/create-rn.md).
 
 Optional flags:
 
@@ -83,6 +88,7 @@ Optional flags:
 - React Native 0.81.6 project bootstrap (via RN CLI)
 - Base engineering configs (`tsconfig`, `eslint`, `prettier`, `metro`, `jest`)
 - Infrastructure modules: `logger`, `i18n`, `sqlite` (`react-native-quick-sqlite`), `mmkv` (`react-native-mmkv`)
+- Zippy probe (`@bear1210/zippy-rn`) — `ZippyProbe.start()` in `__DEV__` only
 - Git quality gates: `commitlint`, `husky`, `lint-staged`
 - Cursor assets: `.cursor/rules`, `.cursor/skills`
 - `patch-package` + `patches/`
@@ -106,6 +112,7 @@ Full CLI docs: [`packages/create-flutter-template/README.md`](./packages/create-
 - Flutter project bootstrap (via `flutter create`, Android + iOS)
 - Layered `lib/` layout: `pages` / `router` / `providers` / `datasources` / `repositories` / `entities` / `services` / `core` / `l10n`
 - Infrastructure: Dio + auth interceptor hook, sqflite logger, ScreenUtil theme (Poppins), GoRouter, Provider, permission helpers
+- Zippy probe (`zippy_flutter` under `packages/`) — `ZippyProbe.start()` in debug only
 - `package.json` scripts for analyze / format / build / `gen:l10n`
 - Git quality gates: `commitlint`, `husky`
 - Cursor rules for architecture / Dart style / l10n / iOS private-API
@@ -154,7 +161,7 @@ Reports Common / Android / iOS / React Native / Flutter readiness. Flutter is op
 ```bash
 npm install
 npm run check-mobile-env
-npm run create-rn-template -- myNewApp --package=com.example.mynewapp --skip-install
+npm run create-rn-template -- MyNewApp --package=com.example.mynewapp --skip-install
 npm run create-flutter-template -- myFlutterApp --org=com.example --skip-install
 ```
 

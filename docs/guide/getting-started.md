@@ -6,7 +6,7 @@ AppSetup is a monorepo of **business-free** mobile scaffolds and macOS toolchain
 
 | Goal | Command |
 | ---- | ------- |
-| New React Native app | `npx @bear1210/create-rn-template <name>` |
+| New React Native app | `npx @bear1210/create-rn-template <ProjectName>` ([name rules](./create-rn#project-name-rules)) |
 | New Flutter app | `npx @bear1210/create-flutter-template <name>` |
 | Android SDK / JDK (macOS) | `npx -p @bear1210/create-rn-template setup-rn-android-env` |
 | iOS CocoaPods toolchain (macOS) | `npx -p @bear1210/create-rn-template setup-rn-ios-env` |
@@ -21,8 +21,8 @@ AppSetup is a monorepo of **business-free** mobile scaffolds and macOS toolchain
 ## 60-second start
 
 ```bash
-# React Native
-npx @bear1210/create-rn-template myNewApp --package=com.example.mynewapp
+# React Native — ProjectName must be a JS identifier (MyNewApp), not kebab-case
+npx @bear1210/create-rn-template MyNewApp --package=com.example.mynewapp
 
 # Flutter
 npx @bear1210/create-flutter-template myFlutterApp --org=com.example

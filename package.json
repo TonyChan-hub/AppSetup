@@ -22,7 +22,8 @@
     "docs:preview": "vitepress preview docs",
     "version:create-rn-template": "npm version -w @bear1210/create-rn-template",
     "version:create-flutter-template": "npm version -w @bear1210/create-flutter-template",
-    "version:zippy": "npm version -w @bear1210/zippy"
+    "version:zippy": "npm version -w @bear1210/zippy",
+    "version:zippy-rn": "npm version -w @bear1210/zippy-rn"
   },
   "devDependencies": {
     "vitepress": "^1.6.4"

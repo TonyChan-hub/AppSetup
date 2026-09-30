@@ -6,7 +6,7 @@ AppSetup 是一套**无业务逻辑**的移动端脚手架与 macOS 工具链助
 
 | 目标 | 命令 |
 | ---- | ---- |
-| 新建 React Native 应用 | `npx @bear1210/create-rn-template <name>` |
+| 新建 React Native 应用 | `npx @bear1210/create-rn-template <ProjectName>`（[命名规范](./create-rn#项目名规范)） |
 | 新建 Flutter 应用 | `npx @bear1210/create-flutter-template <name>` |
 | Android SDK / JDK（macOS） | `npx -p @bear1210/create-rn-template setup-rn-android-env` |
 | iOS CocoaPods 工具链（macOS） | `npx -p @bear1210/create-rn-template setup-rn-ios-env` |
@@ -21,8 +21,8 @@ AppSetup 是一套**无业务逻辑**的移动端脚手架与 macOS 工具链助
 ## 一分钟上手
 
 ```bash
-# React Native
-npx @bear1210/create-rn-template myNewApp --package=com.example.mynewapp
+# React Native — 项目名须为 JS 标识符（MyNewApp），不要用 kebab-case
+npx @bear1210/create-rn-template MyNewApp --package=com.example.mynewapp
 
 # Flutter
 npx @bear1210/create-flutter-template myFlutterApp --org=com.example

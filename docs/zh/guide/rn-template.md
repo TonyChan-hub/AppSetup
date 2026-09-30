@@ -16,7 +16,8 @@
 | i18n | `src/i18n` 多语言 |
 | SQLite | `react-native-quick-sqlite` |
 | MMKV | `react-native-mmkv` |
-| HTTP | 共用 `httpClient` |
+| HTTP | 共用 `httpClient`（`__DEV__` 下挂 Zippy network） |
+| Zippy | `@bear1210/zippy-rn` probe — 仅 `__DEV__` 调用 `ZippyProbe.start()` |
 
 ## 工程化
 
@@ -29,7 +30,7 @@
 ## 生成结构（概览）
 
 ```text
-myNewApp/
+MyNewApp/
 ├── src/
 │   ├── components/
 │   ├── constants/ / theme/

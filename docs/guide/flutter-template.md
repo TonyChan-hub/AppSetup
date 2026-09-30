@@ -27,7 +27,10 @@ What `@bear1210/create-flutter-template` puts into a new app.
 
 - Product / business screens or APIs
 - Firebase / IAP / OAuth credentials
-- `zippy_flutter` probe (add later from the monorepo if needed)
+
+## Included by default
+
+- `zippy_flutter` probe (debug only) — scaffold copies/unpacks into `packages/zippy_flutter`
 
 ## Generated layout
 
@@ -43,6 +46,7 @@ myFlutterApp/
 │   ├── repositories/ / entities/ / services/
 │   ├── core/               # network, theme, logging, permissions
 │   └── l10n/
+├── packages/zippy_flutter/ # Zippy debug probe (path dep)
 ├── assets/fonts/           # Poppins
 ├── android/ / ios/
 ├── pubspec.yaml

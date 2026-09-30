@@ -5,6 +5,7 @@ type StringStorage = {
   getString: (key: string) => string | undefined;
   set: (key: string, value: string) => void;
   delete: (key: string) => void;
+  getAllKeys?: () => string[];
 };
 
 const instances = new Map<string, StringStorage>();
@@ -20,6 +21,7 @@ function createMemoryStorage(id: string): StringStorage {
     set: (key, value) => map.set(key, value),
     delete: (key) => map.delete(key),
     clearAll: () => map.clear(),
+    getAllKeys: () => [...map.keys()],
   };
 }
 
@@ -38,4 +40,16 @@ export function getMmkvStorage(id: string): StringStorage {
     instances.set(id, fallback);
     return fallback;
   }
+}
+
+/** Snapshot for Zippy MMKV panel. */
+export function readMmkvSnapshot(id: string): Record<string, unknown> {
+  const storage = getMmkvStorage(id);
+  const keys =
+    typeof storage.getAllKeys === 'function' ? storage.getAllKeys() : [];
+  const out: Record<string, unknown> = {};
+  for (const key of keys) {
+    out[key] = storage.getString(key) ?? null;
+  }
+  return out;
 }

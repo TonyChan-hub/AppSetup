@@ -16,7 +16,8 @@ What `@bear1210/create-rn-template` puts into a new app.
 | i18n | Locale files under `src/i18n` |
 | SQLite | `react-native-quick-sqlite` |
 | MMKV | `react-native-mmkv` |
-| HTTP | Shared `httpClient` |
+| HTTP | Shared `httpClient` (fetch + Zippy network hook in `__DEV__`) |
+| Zippy | `@bear1210/zippy-rn` probe — `ZippyProbe.start()` in `__DEV__` only |
 
 ## Engineering
 
@@ -29,7 +30,7 @@ What `@bear1210/create-rn-template` puts into a new app.
 ## Generated shape (high level)
 
 ```text
-myNewApp/
+MyNewApp/
 ├── src/
 │   ├── components/
 │   ├── constants/ / theme/

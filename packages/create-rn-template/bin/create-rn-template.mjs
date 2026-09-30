@@ -24,6 +24,18 @@ function parseArgs(argv) {
   return { projectName, skipInstall, packageName };
 }
 
+/** RN CLI requires a JS identifier — no hyphens/underscores/spaces. */
+function assertValidRnProjectName(projectName) {
+  if (!/^[A-Za-z][A-Za-z0-9]*$/.test(projectName)) {
+    console.error(
+      `Invalid project name "${projectName}".\n` +
+        'React Native CLI only accepts a JS identifier: letters and digits, starting with a letter.\n' +
+        'Use PascalCase or camelCase (e.g. MyNewApp / myNewApp). Do not use kebab-case (my-new-app) or snake_case (my_new_app).'
+    );
+    process.exit(1);
+  }
+}
+
 const XCODE26_PODS_FIX = `
     # Must run after react_native_post_install.
     installer.pods_project.targets.each do |target|
@@ -111,9 +123,13 @@ async function ensureIosPodfileCompatibility(targetDir) {
 async function main() {
   const { projectName, skipInstall, packageName } = parseArgs(process.argv.slice(2));
   if (!projectName) {
-    console.error('Usage: create-rn-template <project-name> [--package=com.example.app] [--skip-install]');
+    console.error(
+      'Usage: create-rn-template <ProjectName> [--package=com.example.app] [--skip-install]\n' +
+        '  <ProjectName> must be a JS identifier (e.g. MyNewApp). No hyphens or underscores.'
+    );
     process.exit(1);
   }
+  assertValidRnProjectName(projectName);
 
   const currentDir = process.cwd();
   const targetDir = path.join(currentDir, projectName);

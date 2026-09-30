@@ -77,7 +77,10 @@ create-flutter-template <project-name> [--org=com.example] [--skip-install]
 **Not included (intentionally)**
 
 - Product/business screens, APIs, Firebase / IAP / OAuth credentials
-- `zippy_flutter` probe (add later from this monorepo if needed)
+
+**Included by default**
+
+- `zippy_flutter` probe (debug only via `ZippyProbe.start()`; path dep under `packages/zippy_flutter`)
 
 ## Generated layout
 
@@ -93,6 +96,7 @@ myFlutterApp/
 │   ├── repositories/ / entities/ / services/
 │   ├── core/               # network, theme, logging, permissions
 │   └── l10n/
+├── packages/zippy_flutter/ # Zippy debug probe
 ├── assets/fonts/           # Poppins
 ├── android/ / ios/         # from flutter create (+ permission patches)
 ├── pubspec.yaml

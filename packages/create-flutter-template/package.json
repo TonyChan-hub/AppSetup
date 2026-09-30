@@ -1,6 +1,6 @@
 {
   "name": "@bear1210/create-flutter-template",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Business-free Flutter project scaffold CLI (architecture from production Flutter apps)",
   "license": "MIT",
   "type": "module",
@@ -9,9 +9,13 @@
   },
   "files": [
     "bin",
-    "template"
+    "template",
+    "vendor",
+    "scripts"
   ],
   "scripts": {
+    "prepack": "bash scripts/sync-vendor-zippy.sh",
+    "sync-vendor-zippy": "bash scripts/sync-vendor-zippy.sh",
     "lint": "node -e \"console.log('no lint configured')\"",
     "test": "node -e \"console.log('no tests yet')\""
   },

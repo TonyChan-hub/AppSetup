@@ -23,13 +23,40 @@ npm run zippy
 npm run zippy:build
 ```
 
-## Connect a Flutter probe
+## Connect a probe
 
-1. Add `zippy_flutter` to your app and call `await ZippyProbe.start()` in debug mode
-2. Run the app on a device/emulator reachable from your Mac
-3. Open Zippy → **Device** → enter host/port (default `9876`) → **Connect**
+New apps from `@bear1210/create-rn-template` / `@bear1210/create-flutter-template` already wire Zippy in **debug** builds. Connect Zippy desktop → **Device** → host/port (default `9876`) → **Connect**.
 
-See the [`zippy_flutter` package README](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_flutter) for SDK details.
+### React Native (`@bear1210/zippy-rn`)
+
+```bash
+npm install @bear1210/zippy-rn react-native-tcp-socket buffer
+```
+
+```tsx
+import { ZippyProbe } from '@bear1210/zippy-rn';
+
+await ZippyProbe.start(); // no-op outside __DEV__ unless enabled: true
+```
+
+See [`packages/zippy_rn/README.md`](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_rn).
+
+### Flutter (`zippy_flutter` zip / path)
+
+```yaml
+dependencies:
+  zippy_flutter:
+    path: packages/zippy_flutter
+```
+
+```dart
+await ZippyProbe.start(); // no-op outside debug unless ZIPPY_PROBE=true
+ZippyProbe.attachDio(dio);
+```
+
+Pack with `bash packages/zippy_flutter/scripts/pack.sh`, or let `create-flutter-template` unpack its vendor zip. See [`packages/zippy_flutter/README.md`](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_flutter).
+
+Physical Android: use the device LAN IP, or `adb reverse tcp:9876 tcp:9876` and connect to `127.0.0.1`.
 
 ## Releases
 

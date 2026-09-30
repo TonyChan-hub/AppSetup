@@ -26,6 +26,8 @@ dependencies:
   share_plus: ^10.0.0
   gal: ^2.3.0
   sensors_plus: ^6.1.1
+  zippy_flutter:
+    path: packages/zippy_flutter
 
 dev_dependencies:
   flutter_test:

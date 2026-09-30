@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:zippy_flutter/zippy_flutter.dart';
 
 import '../constants/app_constants.dart';
 import '../logging/local_logger.dart';
@@ -67,6 +68,8 @@ class DioClient {
         onRefresh: refreshAuthSession,
       ),
     );
+
+    ZippyProbe.attachDio(dio);
 
     return dio;
   }

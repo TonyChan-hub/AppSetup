@@ -27,7 +27,10 @@
 
 - 产品 / 业务页面或 API
 - Firebase / 内购 / OAuth 凭证
-- `zippy_flutter` probe（需要时可从本 monorepo 后续接入）
+
+## 默认包含
+
+- `zippy_flutter` probe（仅 debug）— 脚手架会解压/拷贝到 `packages/zippy_flutter`
 
 ## 生成结构
 
@@ -43,6 +46,7 @@ myFlutterApp/
 │   ├── repositories/ / entities/ / services/
 │   ├── core/               # network, theme, logging, permissions
 │   └── l10n/
+├── packages/zippy_flutter/ # Zippy debug probe（path 依赖）
 ├── assets/fonts/           # Poppins
 ├── android/ / ios/
 ├── pubspec.yaml

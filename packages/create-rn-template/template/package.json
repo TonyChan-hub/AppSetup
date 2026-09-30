@@ -17,6 +17,7 @@
   "dependencies": {
     "@babel/runtime": "^7.25.0",
     "@bam.tech/react-native-image-resizer": "^3.0.11",
+    "@bear1210/zippy-rn": "0.0.1",
     "@invertase/react-native-apple-authentication": "^2.5.1",
     "@react-native-camera-roll/camera-roll": "^7.10.2",
     "@react-native-google-signin/google-signin": "^16.1.4",
@@ -46,6 +47,7 @@
     "react-native-share": "^12.3.1",
     "react-native-ssl-pinning": "^1.6.0",
     "react-native-store-review": "^0.5.0",
+    "react-native-tcp-socket": "^6.3.0",
     "react-native-view-shot": "^5.1.0",
     "react-native-vision-camera": "4.6.4",
     "react-native-webview": "^14.0.1",

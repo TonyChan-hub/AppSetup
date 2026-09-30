@@ -23,13 +23,40 @@ npm run zippy
 npm run zippy:build
 ```
 
-## 连接 Flutter probe
+## 连接 probe
 
-1. 在应用中加入 `zippy_flutter`，并在 debug 模式下调用 `await ZippyProbe.start()`
-2. 在 Mac 可访问的设备 / 模拟器上运行应用
-3. 打开 Zippy → **Device** → 输入 host/port（默认 `9876`）→ **Connect**
+`@bear1210/create-rn-template` / `@bear1210/create-flutter-template` 生成的新项目在 **debug** 下已默认接入 Zippy。打开 Zippy 桌面端 → **Device** → 输入 host/port（默认 `9876`）→ **Connect**。
 
-SDK 细节见 [`zippy_flutter` 包 README](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_flutter)。
+### React Native（`@bear1210/zippy-rn`）
+
+```bash
+npm install @bear1210/zippy-rn react-native-tcp-socket buffer
+```
+
+```tsx
+import { ZippyProbe } from '@bear1210/zippy-rn';
+
+await ZippyProbe.start(); // 非 __DEV__ 默认 no-op，除非 enabled: true
+```
+
+详见 [`packages/zippy_rn/README.md`](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_rn)。
+
+### Flutter（`zippy_flutter` zip / path）
+
+```yaml
+dependencies:
+  zippy_flutter:
+    path: packages/zippy_flutter
+```
+
+```dart
+await ZippyProbe.start(); // 非 debug 默认 no-op，除非 ZIPPY_PROBE=true
+ZippyProbe.attachDio(dio);
+```
+
+用 `bash packages/zippy_flutter/scripts/pack.sh` 打包，或由 `create-flutter-template` 解压 vendor zip。详见 [`packages/zippy_flutter/README.md`](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_flutter)。
+
+真机 Android：使用设备局域网 IP，或 `adb reverse tcp:9876 tcp:9876` 后连 `127.0.0.1`。
 
 ## 发版
 

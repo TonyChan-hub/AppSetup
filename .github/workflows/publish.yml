@@ -6,15 +6,64 @@ on:
       - main
 
 jobs:
-  publish:
+  publish-libs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - name: "@bear1210/zippy-probe-protocol"
+            dir: "packages/zippy-probe-protocol"
+          - name: "@bear1210/zippy-rn"
+            dir: "packages/zippy_rn"
+    concurrency:
+      group: npm-publish-${{ matrix.package.name }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Check package version is not already published
+        id: version_check
+        working-directory: ${{ matrix.package.dir }}
+        run: |
+          PKG_NAME=$(node -p "require('./package.json').name")
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          NPM_VERSION=$(npm view "$PKG_NAME" version 2>/dev/null || echo "0.0.0")
+          if [ "$PKG_VERSION" = "$NPM_VERSION" ]; then
+            echo "Version $PKG_VERSION already exists on npm; skip publish."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Publishing $PKG_NAME@$PKG_VERSION (npm latest: $NPM_VERSION)"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish package to npm
+        if: steps.version_check.outputs.skip != 'true'
+        run: npm publish -w "${{ matrix.package.name }}" --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-clis:
+    needs: publish-libs
     runs-on: ubuntu-latest
     strategy:
       matrix:
         package:
           - name: "@bear1210/create-rn-template"
             dir: "packages/create-rn-template"
-          - name: "@bear1210/zippy-probe-protocol"
-            dir: "packages/zippy-probe-protocol"
+          - name: "@bear1210/create-flutter-template"
+            dir: "packages/create-flutter-template"
     concurrency:
       group: npm-publish-${{ matrix.package.name }}
       cancel-in-progress: false

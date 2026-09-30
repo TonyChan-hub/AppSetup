@@ -45,13 +45,14 @@ Then:
 
 If the signing secret is missing or invalid, the release workflow still publishes the `.dmg` (docs download works); only in-app updater signatures are skipped.
 
-## Connect to a Flutter probe
+## Connect to a mobile probe
 
-1. Add `zippy_flutter` to your app and call `await ZippyProbe.start()` in debug mode.
-2. Run the app on a device/emulator reachable from your Mac.
-3. Open Zippy → **Device** → enter host/port (default `9876`) → **Connect**.
+1. **Flutter:** add `zippy_flutter` and call `await ZippyProbe.start()` in debug (scaffolds do this by default).
+2. **React Native:** add `@bear1210/zippy-rn` and call `ZippyProbe.start()` in `__DEV__` (scaffolds do this by default).
+3. Run the app on a device/emulator reachable from your Mac.
+4. Open Zippy → **Device** → enter host/port (default `9876`) → **Connect**.
 
-See [`../zippy_flutter/README.md`](../zippy_flutter/README.md) for SDK integration.
+See [`../zippy_flutter/README.md`](../zippy_flutter/README.md) and [`../zippy_rn/README.md`](../zippy_rn/README.md) for SDK details.
 
 ## Auto-update & docs download
 

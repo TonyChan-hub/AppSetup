@@ -156,6 +156,71 @@ async function ensureAndroidPermissions(targetDir) {
   await fs.writeFile(manifestPath, content, 'utf8');
 }
 
+/**
+ * Install zippy_flutter into <app>/packages/zippy_flutter.
+ * Prefer monorepo source when developing; otherwise unpack vendor/*.zip shipped with the CLI.
+ */
+async function installZippyFlutter(rootDir, targetDir) {
+  const dest = path.join(targetDir, 'packages', 'zippy_flutter');
+  await fs.remove(dest);
+  await fs.ensureDir(path.join(targetDir, 'packages'));
+
+  const monorepoSource = path.resolve(rootDir, '../zippy_flutter');
+  const monorepoPubspec = path.join(monorepoSource, 'pubspec.yaml');
+  if (await fs.pathExists(monorepoPubspec)) {
+    console.log('Installing zippy_flutter (monorepo copy)...');
+    await fs.copy(monorepoSource, dest, {
+      filter: (src) => {
+        const rel = path.relative(monorepoSource, src).split(path.sep).join('/');
+        if (!rel) return true;
+        return ![
+          '.dart_tool',
+          'build',
+          'example',
+          'dist',
+          'scripts',
+          '.idea',
+          'pubspec.lock',
+        ].some((entry) => rel === entry || rel.startsWith(`${entry}/`));
+      },
+    });
+    return;
+  }
+
+  const vendorDir = path.join(rootDir, 'vendor');
+  if (!(await fs.pathExists(vendorDir))) {
+    throw new Error(
+      'zippy_flutter vendor zip missing. Run: bash packages/create-flutter-template/scripts/sync-vendor-zippy.sh'
+    );
+  }
+  const zips = (await fs.readdir(vendorDir)).filter(
+    (name) => name.startsWith('zippy_flutter-') && name.endsWith('.zip')
+  );
+  if (zips.length === 0) {
+    throw new Error(
+      'No zippy_flutter-*.zip in vendor/. Run sync-vendor-zippy.sh before publish.'
+    );
+  }
+  zips.sort();
+  const zipPath = path.join(vendorDir, zips[zips.length - 1]);
+  console.log(`Installing zippy_flutter from ${path.basename(zipPath)}...`);
+
+  if (!which('unzip')) {
+    throw new Error('unzip is required to extract zippy_flutter vendor zip');
+  }
+  const stage = await fs.mkdtemp(path.join(targetDir, '.zippy-'));
+  try {
+    run('unzip', ['-qo', zipPath, '-d', stage], process.cwd());
+    const extracted = path.join(stage, 'zippy_flutter');
+    if (!(await fs.pathExists(extracted))) {
+      throw new Error(`Unexpected zip layout in ${zipPath}`);
+    }
+    await fs.move(extracted, dest);
+  } finally {
+    await fs.remove(stage);
+  }
+}
+
 async function main() {
   const { projectName, skipInstall, org } = parseArgs(process.argv.slice(2));
   if (!projectName) {
@@ -227,6 +292,7 @@ async function main() {
   await rewritePlaceholders(targetDir, packageName, displayName);
   await ensureIosUsageDescriptions(targetDir, displayName);
   await ensureAndroidPermissions(targetDir);
+  await installZippyFlutter(rootDir, targetDir);
 
   // flutter create already wrote a counter demo; remove leftover test that imports it.
   const widgetTest = path.join(targetDir, 'test', 'widget_test.dart');

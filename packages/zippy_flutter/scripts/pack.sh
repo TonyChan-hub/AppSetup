@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Pack zippy_flutter into a single zip for dropping into host apps (e.g. tcg-scanner).
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VERSION="$(awk '/^version:/{print $2; exit}' "$ROOT/pubspec.yaml")"
 DIST="$ROOT/dist"
 STAGE="$(mktemp -d)"

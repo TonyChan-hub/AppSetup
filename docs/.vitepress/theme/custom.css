@@ -131,6 +131,12 @@
   }
 }
 
+.zippy-download__asset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
 .zippy-download__btn {
   display: flex;
   flex-direction: column;
@@ -159,6 +165,21 @@
   opacity: 0.88;
   font-family: var(--vp-font-family-mono);
   word-break: break-all;
+}
+
+.zippy-download__alt {
+  font-size: 0.82rem;
+  color: var(--vp-c-text-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  align-self: flex-start;
+}
+
+.zippy-download__hint-inline {
+  grid-column: 1 / -1;
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  color: var(--vp-c-text-2);
 }
 
 .zippy-download__status,

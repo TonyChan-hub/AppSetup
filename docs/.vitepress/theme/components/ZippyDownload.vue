@@ -9,9 +9,11 @@ const props = withDefaults(
 )
 
 const REPO = 'TonyChan-hub/AppSetup'
+const PAGES_MANIFEST_URL = `${import.meta.env.BASE_URL}downloads/manifest.json`
 const MANIFEST_URL = `https://github.com/${REPO}/releases/latest/download/download.json`
 const RELEASES_API = `https://api.github.com/repos/${REPO}/releases?per_page=20`
 const RELEASES_PAGE = `https://github.com/${REPO}/releases`
+const PAGES_DOWNLOAD_BASE = 'https://tonychan-hub.github.io/AppSetup/downloads'
 
 type DownloadAsset = {
   name: string
@@ -19,6 +21,7 @@ type DownloadAsset = {
   label: string
   size?: number
   url: string
+  githubUrl?: string
 }
 
 type DownloadManifest = {
@@ -38,27 +41,31 @@ const copy = computed(() =>
   props.locale === 'zh'
     ? {
         title: '下载桌面应用',
-        subtitle: 'macOS · 通过 GitHub Releases 分发',
+        subtitle: 'macOS · Apple Silicon（M 系列）优先走文档镜像',
         loading: '正在获取最新版本…',
         empty: '尚未发布安装包。发版后可在此直接下载，也可先从源码运行。',
         emptyHint: '本地开发：npm install && npm run zippy',
-        error: '暂时无法读取发布信息，请前往 GitHub Releases。',
+        error: '暂时无法读取发布信息，请前往 GitHub Releases，或本机执行 npm run zippy:build。',
         version: '最新版本',
         allReleases: '全部 Releases',
         fromSource: '从源码运行',
         size: '大小',
+        mirrorHint: '若 GitHub 下载失败，请用上方镜像按钮（托管在文档站点）。',
+        githubFallback: 'GitHub 直链',
       }
     : {
         title: 'Download desktop app',
-        subtitle: 'macOS · shipped via GitHub Releases',
+        subtitle: 'macOS · Apple Silicon builds mirrored on this docs site',
         loading: 'Fetching the latest release…',
         empty: 'No packaged build yet. Once a release is published, it will appear here. You can also run from source.',
         emptyHint: 'Local: npm install && npm run zippy',
-        error: 'Could not load release info. Open GitHub Releases instead.',
+        error: 'Could not load release info. Open GitHub Releases, or run npm run zippy:build locally.',
         version: 'Latest',
         allReleases: 'All releases',
         fromSource: 'Run from source',
         size: 'Size',
+        mirrorHint: 'If GitHub Releases is unreachable, use the primary button (mirrored on this site).',
+        githubFallback: 'GitHub direct',
       },
 )
 
@@ -87,7 +94,7 @@ function labelForArch(arch: string) {
   if (props.locale === 'zh') {
     switch (arch) {
       case 'aarch64':
-        return 'macOS（Apple Silicon）'
+        return 'macOS（Apple Silicon / M 系列）'
       case 'x86_64':
         return 'macOS（Intel）'
       default:
@@ -104,11 +111,35 @@ function labelForArch(arch: string) {
   }
 }
 
-function localizeAssets(assets: DownloadAsset[]) {
-  return assets.map((asset) => ({
+function pagesUrlFor(name: string) {
+  return `${PAGES_DOWNLOAD_BASE}/${name}`
+}
+
+function preferPagesUrl(asset: DownloadAsset): DownloadAsset {
+  const githubUrl = asset.githubUrl || asset.url
+  const mirrored =
+    asset.url?.includes('/AppSetup/downloads/') || asset.url?.startsWith(PAGES_DOWNLOAD_BASE)
+  return {
     ...asset,
     label: labelForArch(asset.arch || archFromName(asset.name)),
-  }))
+    url: mirrored ? asset.url : pagesUrlFor(asset.name),
+    githubUrl,
+  }
+}
+
+function localizeAssets(assets: DownloadAsset[]) {
+  return assets.map(preferPagesUrl)
+}
+
+async function loadFromPagesManifest(): Promise<DownloadManifest | null> {
+  const response = await fetch(PAGES_MANIFEST_URL, { headers: { Accept: 'application/json' } })
+  if (!response.ok) return null
+  const data = (await response.json()) as DownloadManifest
+  if (!data?.version || !Array.isArray(data.assets) || data.assets.length === 0) return null
+  return {
+    ...data,
+    assets: localizeAssets(data.assets),
+  }
 }
 
 async function loadFromManifest(): Promise<DownloadManifest | null> {
@@ -142,13 +173,14 @@ async function loadFromGitHubApi(): Promise<DownloadManifest | null> {
     .filter((asset) => asset.name.endsWith('.dmg'))
     .map((asset) => {
       const arch = archFromName(asset.name)
-      return {
+      return preferPagesUrl({
         name: asset.name,
         arch,
         label: labelForArch(arch),
         size: asset.size,
-        url: asset.browser_download_url,
-      }
+        url: pagesUrlFor(asset.name),
+        githubUrl: asset.browser_download_url,
+      })
     })
   if (!assets.length) return null
   return {
@@ -165,8 +197,12 @@ onMounted(async () => {
   loading.value = true
   error.value = null
   try {
-    // Prefer GitHub API (CORS-friendly in browsers); fall back to download.json.
-    manifest.value = (await loadFromGitHubApi()) ?? (await loadFromManifest())
+    // 1) Same-origin Pages mirror (best for regions where GitHub Releases CDN fails)
+    // 2) GitHub API  3) download.json on the release
+    manifest.value =
+      (await loadFromPagesManifest()) ??
+      (await loadFromGitHubApi()) ??
+      (await loadFromManifest())
   } catch {
     error.value = copy.value.error
     manifest.value = null
@@ -193,19 +229,24 @@ onMounted(async () => {
     <div v-if="loading" class="zippy-download__status">{{ copy.loading }}</div>
 
     <div v-else-if="manifest" class="zippy-download__assets">
-      <a
-        v-for="asset in manifest.assets"
-        :key="asset.url"
-        class="zippy-download__btn"
-        :href="asset.url"
-        rel="noopener noreferrer"
-      >
-        <span class="zippy-download__btn-label">{{ asset.label }}</span>
-        <span class="zippy-download__btn-meta">
-          {{ asset.name }}
-          <template v-if="formatBytes(asset.size)"> · {{ formatBytes(asset.size) }}</template>
-        </span>
-      </a>
+      <div v-for="asset in manifest.assets" :key="asset.url" class="zippy-download__asset">
+        <a class="zippy-download__btn" :href="asset.url" rel="noopener noreferrer">
+          <span class="zippy-download__btn-label">{{ asset.label }}</span>
+          <span class="zippy-download__btn-meta">
+            {{ asset.name }}
+            <template v-if="formatBytes(asset.size)"> · {{ formatBytes(asset.size) }}</template>
+          </span>
+        </a>
+        <a
+          v-if="asset.githubUrl && asset.githubUrl !== asset.url"
+          class="zippy-download__alt"
+          :href="asset.githubUrl"
+          rel="noopener noreferrer"
+        >
+          {{ copy.githubFallback }}
+        </a>
+      </div>
+      <p class="zippy-download__hint-inline">{{ copy.mirrorHint }}</p>
     </div>
 
     <div v-else class="zippy-download__empty">

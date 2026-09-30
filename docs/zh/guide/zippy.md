@@ -164,4 +164,6 @@ ZippyProbe.registerMmkvStore('session', () => {'token': '…'});
 
 ## 发版
 
-Bump `@bear1210/zippy` 并推送到 `main` 会触发 Zippy 发版工作流。打包产物会把 `.dmg` 以及 `download.json` / `latest.json` 发布到 GitHub Releases，上方的下载面板会自动读取这些资源。
+Bump `@bear1210/zippy` 并推送到 `main` 会触发 Zippy 发版工作流。打包产物会把 `.dmg` 以及 `download.json` / `latest.json` 发布到 GitHub Releases；文档站点还会把 `.dmg` 镜像到 GitHub Pages（上方下载按钮默认走镜像，避免部分网络访问不了 Releases CDN）。
+
+当前 macOS runner 产出 **Apple Silicon（aarch64）** 安装包，适用于 M1 / M2 / M3 / M4。若 GitHub 下载失败，可用文档页主按钮，或本机 `npm run zippy:build`。

@@ -42,6 +42,7 @@ flutter run
 2. Overlays the business-free `template/`
 3. Rewrites placeholder package name → your Dart package name
 4. Injects camera / photo permission strings
-5. Unless `--skip-install`: `flutter pub get` → `flutter gen-l10n` → `npm install`
+5. Injects Aliyun Maven mirrors + Tencent Gradle distribution URL, and patches Flutter SDK `flutter_tools/gradle` when writable (avoids Google/Gradle TLS failures on restricted networks)
+6. Unless `--skip-install`: `flutter pub get` → `flutter gen-l10n` → `npm install`
 
 See [Flutter template features](./flutter-template) for the full scaffold.

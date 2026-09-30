@@ -156,6 +156,157 @@ async function ensureAndroidPermissions(targetDir) {
   await fs.writeFile(manifestPath, content, 'utf8');
 }
 
+const ALIYUN_MARKER = 'maven.aliyun.com/repository/google';
+const GRADLE_DIST_OFFICIAL = 'services.gradle.org/distributions/';
+const GRADLE_DIST_MIRROR = 'mirrors.cloud.tencent.com/gradle/';
+
+const FLUTTER_TOOLS_SETTINGS_MIRRORS = `pluginManagement {
+    repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        google()
+        mavenCentral()
+    }
+}
+`;
+
+/** Prefer Aliyun Maven mirrors (same set as the RN template) before google()/mavenCentral(). */
+function injectAliyunMavenMirrors(content, style) {
+  if (content.includes(ALIYUN_MARKER)) return content;
+
+  if (style === 'kts') {
+    return content.replace(
+      /(repositories\s*\{\s*\n)([ \t]*)google\(\)/g,
+      (_, head, indent) =>
+        `${head}` +
+        `${indent}maven { url = uri("https://maven.aliyun.com/repository/google") }\n` +
+        `${indent}maven { url = uri("https://maven.aliyun.com/repository/central") }\n` +
+        `${indent}maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }\n` +
+        `${indent}maven { url = uri("https://maven.aliyun.com/repository/public") }\n` +
+        `${indent}google()`
+    );
+  }
+
+  return content.replace(
+    /(repositories\s*\{\s*\n)([ \t]*)google\(\)/g,
+    (_, head, indent) =>
+      `${head}` +
+      `${indent}maven { url 'https://maven.aliyun.com/repository/google' }\n` +
+      `${indent}maven { url 'https://maven.aliyun.com/repository/central' }\n` +
+      `${indent}maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }\n` +
+      `${indent}maven { url 'https://maven.aliyun.com/repository/public' }\n` +
+      `${indent}google()`
+  );
+}
+
+async function ensureGradleDistributionMirror(targetDir) {
+  const wrapperProps = path.join(
+    targetDir,
+    'android',
+    'gradle',
+    'wrapper',
+    'gradle-wrapper.properties'
+  );
+  if (!(await fs.pathExists(wrapperProps))) return;
+
+  let content = await fs.readFile(wrapperProps, 'utf8');
+  if (!content.includes(GRADLE_DIST_OFFICIAL)) return;
+
+  content = content.split(GRADLE_DIST_OFFICIAL).join(GRADLE_DIST_MIRROR);
+  await fs.writeFile(wrapperProps, content, 'utf8');
+}
+
+/**
+ * Flutter's includeBuild (packages/flutter_tools/gradle) resolves AGP/Kotlin
+ * against google()/mavenCentral() only. Patch that settings file when writable
+ * so restricted networks can use Aliyun (re-apply after Flutter upgrades).
+ */
+async function ensureFlutterToolsGradleMirrors(targetDir) {
+  const localProps = path.join(targetDir, 'android', 'local.properties');
+  if (!(await fs.pathExists(localProps))) return;
+
+  const props = await fs.readFile(localProps, 'utf8');
+  const match = props.match(/^flutter\.sdk=(.+)$/m);
+  if (!match) return;
+
+  const flutterSdk = match[1].trim().replace(/\\:/g, ':').replace(/\\\\/g, '\\');
+  const settingsPath = path.join(
+    flutterSdk,
+    'packages',
+    'flutter_tools',
+    'gradle',
+    'settings.gradle.kts'
+  );
+  if (!(await fs.pathExists(settingsPath))) return;
+
+  let content = await fs.readFile(settingsPath, 'utf8');
+  if (content.includes(ALIYUN_MARKER)) return;
+
+  if (
+    !content.includes('dependencyResolutionManagement') ||
+    !content.includes('google()')
+  ) {
+    return;
+  }
+
+  try {
+    await fs.writeFile(settingsPath, FLUTTER_TOOLS_SETTINGS_MIRRORS, 'utf8');
+    console.log(
+      'Patched Flutter SDK gradle mirrors (packages/flutter_tools/gradle/settings.gradle.kts).'
+    );
+  } catch (error) {
+    console.warn(
+      `Could not patch Flutter SDK gradle mirrors (${settingsPath}): ${error.message}`
+    );
+  }
+}
+
+/**
+ * flutter create points Gradle at dl.google.com / services.gradle.org; in
+ * restricted networks Java TLS often fails with a misleading handshake error.
+ * Inject Aliyun Maven mirrors, Tencent Gradle dist URL, and patch Flutter's
+ * includeBuild settings when possible.
+ */
+async function ensureAndroidMavenMirrors(targetDir) {
+  const androidDir = path.join(targetDir, 'android');
+  if (!(await fs.pathExists(androidDir))) return;
+
+  const targets = [
+    ['settings.gradle.kts', 'kts'],
+    ['build.gradle.kts', 'kts'],
+    ['settings.gradle', 'groovy'],
+    ['build.gradle', 'groovy'],
+  ];
+
+  for (const [name, style] of targets) {
+    const filePath = path.join(androidDir, name);
+    if (!(await fs.pathExists(filePath))) continue;
+    const original = await fs.readFile(filePath, 'utf8');
+    const updated = injectAliyunMavenMirrors(original, style);
+    if (updated !== original) {
+      await fs.writeFile(filePath, updated, 'utf8');
+    }
+  }
+
+  await ensureGradleDistributionMirror(targetDir);
+  await ensureFlutterToolsGradleMirrors(targetDir);
+}
+
 /**
  * Install zippy_flutter into <app>/packages/zippy_flutter.
  * Prefer monorepo source when developing; otherwise unpack vendor/*.zip shipped with the CLI.
@@ -292,6 +443,7 @@ async function main() {
   await rewritePlaceholders(targetDir, packageName, displayName);
   await ensureIosUsageDescriptions(targetDir, displayName);
   await ensureAndroidPermissions(targetDir);
+  await ensureAndroidMavenMirrors(targetDir);
   await installZippyFlutter(rootDir, targetDir);
 
   // flutter create already wrote a counter demo; remove leftover test that imports it.

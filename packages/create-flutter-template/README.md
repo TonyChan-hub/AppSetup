@@ -49,7 +49,8 @@ create-flutter-template <project-name> [--org=com.example] [--skip-install]
 2. Overlays the business-free `template/` (lib, pubspec, tooling, Cursor rules, fonts)
 3. Rewrites the placeholder package name `flutter_template_app` → your Dart package name
 4. Injects camera / photo usage strings (iOS) and camera-related permissions (Android)
-5. Unless `--skip-install`: `flutter pub get` → `flutter gen-l10n` → `npm install`
+5. Injects Aliyun Maven mirrors + Tencent Gradle distribution URL into the app Android Gradle files, and patches Flutter SDK `flutter_tools/gradle` mirrors when writable (needed for `includeBuild`; re-apply after Flutter upgrades)
+6. Unless `--skip-install`: `flutter pub get` → `flutter gen-l10n` → `npm install`
 
 ## What the scaffold includes
 
@@ -98,7 +99,7 @@ myFlutterApp/
 │   └── l10n/
 ├── packages/zippy_flutter/ # Zippy debug probe
 ├── assets/fonts/           # Poppins
-├── android/ / ios/         # from flutter create (+ permission patches)
+├── android/ / ios/         # from flutter create (+ permission + Aliyun Maven patches)
 ├── pubspec.yaml
 ├── package.json            # npm scripts + husky/commitlint
 └── .cursor/rules/

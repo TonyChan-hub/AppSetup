@@ -42,6 +42,7 @@ flutter run
 2. 覆盖无业务 `template/`
 3. 将占位包名替换为你的 Dart 包名
 4. 注入相机 / 相册权限相关文案
-5. 除非 `--skip-install`：依次 `flutter pub get` → `flutter gen-l10n` → `npm install`
+5. 向 Android Gradle 注入阿里云 Maven / 腾讯云 Gradle 发行包镜像，并在可写时给 Flutter SDK 的 `flutter_tools/gradle` 打上同样镜像（`includeBuild` 需要；升级 Flutter 后可能需重新生成或手动补丁）
+6. 除非 `--skip-install`：依次 `flutter pub get` → `flutter gen-l10n` → `npm install`
 
 完整能力见 [Flutter 模板功能](./flutter-template)。

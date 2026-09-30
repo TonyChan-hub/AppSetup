@@ -2,13 +2,15 @@
 
 Zippy is a **Tauri 2** desktop app for inspecting mobile debug data (MMKV / SQLite / network / perf). It ships via **GitHub Releases**, not npm.
 
+<ZippyDownload locale="en" />
+
 ## Prerequisites
 
 - Node.js 20+
 - Rust stable (`rustup`)
 - macOS (primary target)
 
-## Develop
+## Develop {#develop}
 
 ```bash
 npm install
@@ -31,4 +33,4 @@ See the [`zippy_flutter` package README](https://github.com/TonyChan-hub/AppSetu
 
 ## Releases
 
-Bump `@bear1210/zippy` and push to `main` to trigger the Zippy release workflow. Packaged builds use `tauri-plugin-updater` with GitHub Releases.
+Bump `@bear1210/zippy` and push to `main` to trigger the Zippy release workflow. Packaged builds publish a `.dmg` plus `download.json` / `latest.json` to GitHub Releases — the docs download panel above reads those assets automatically.

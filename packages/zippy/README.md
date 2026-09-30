@@ -46,9 +46,11 @@ npx tauri signer generate -w src-tauri/.updater-key --ci -p ""
 
 See [`../zippy_flutter/README.md`](../zippy_flutter/README.md) for SDK integration.
 
-## Auto-update
+## Auto-update & docs download
 
-Packaged macOS builds use `tauri-plugin-updater` with GitHub Releases (`zippy-v{version}` tags) and `latest.json`. Bump this package version and push to `main` to trigger [`.github/workflows/zippy-release.yml`](../../.github/workflows/zippy-release.yml).
+Packaged macOS builds use `tauri-plugin-updater` with GitHub Releases (`zippy-v{version}` tags), `latest.json` (updater), and `download.json` (docs site download panel). Bump this package version and push to `main` to trigger [`.github/workflows/zippy-release.yml`](../../.github/workflows/zippy-release.yml).
+
+After a release, users can download the `.dmg` from the [docs Zippy page](https://tonychan-hub.github.io/AppSetup/guide/zippy#download).
 
 Unsigned Apple builds are fine for internal Phase 1 testing. macOS Gatekeeper may require right-click → Open the first time. Updater signatures are separate from Apple code signing.
 

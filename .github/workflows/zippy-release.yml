@@ -61,26 +61,33 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run build
 
-      - name: Write updater latest.json
+      - name: Write updater latest.json + docs download.json
         if: steps.tag_check.outputs.skip != 'true'
         env:
           VERSION: ${{ steps.version.outputs.version }}
           TAG: ${{ steps.version.outputs.tag }}
         run: |
-          ARTIFACT_DIR="packages/zippy/src-tauri/target/release/bundle"
+          BUNDLE_ROOT="packages/zippy/src-tauri/target/release/bundle"
+          UPDATER_DIR="$BUNDLE_ROOT"
           # Prefer macos updater tarballs directory when present
-          if [ -d "$ARTIFACT_DIR/macos" ]; then
-            ARTIFACT_DIR="$ARTIFACT_DIR/macos"
+          if [ -d "$BUNDLE_ROOT/macos" ]; then
+            UPDATER_DIR="$BUNDLE_ROOT/macos"
           fi
           node packages/zippy/scripts/write-latest-json.mjs \
             "$VERSION" \
-            "$ARTIFACT_DIR" \
+            "$UPDATER_DIR" \
             "$TAG" \
             "${{ github.repository }}"
-          # Also copy latest.json next to dmg outputs for easier upload globs
-          mkdir -p packages/zippy/src-tauri/target/release/bundle/dmg
-          cp "$ARTIFACT_DIR/latest.json" packages/zippy/src-tauri/target/release/bundle/dmg/latest.json 2>/dev/null || true
-          cp "$ARTIFACT_DIR/latest.json" packages/zippy/src-tauri/target/release/bundle/latest.json
+          node packages/zippy/scripts/write-download-json.mjs \
+            "$VERSION" \
+            "$BUNDLE_ROOT" \
+            "$TAG" \
+            "${{ github.repository }}"
+          # Also copy manifests next to dmg outputs for easier upload globs
+          mkdir -p "$BUNDLE_ROOT/dmg"
+          cp "$UPDATER_DIR/latest.json" "$BUNDLE_ROOT/dmg/latest.json" 2>/dev/null || true
+          cp "$UPDATER_DIR/latest.json" "$BUNDLE_ROOT/latest.json"
+          cp "$BUNDLE_ROOT/download.json" "$BUNDLE_ROOT/dmg/download.json" 2>/dev/null || true
 
       - name: Create GitHub Release
         if: steps.tag_check.outputs.skip != 'true'
@@ -95,7 +102,8 @@ jobs:
             packages/zippy/src-tauri/target/release/bundle/dmg/*.dmg \
             packages/zippy/src-tauri/target/release/bundle/macos/*.app.tar.gz \
             packages/zippy/src-tauri/target/release/bundle/macos/*.app.tar.gz.sig \
-            packages/zippy/src-tauri/target/release/bundle/latest.json
+            packages/zippy/src-tauri/target/release/bundle/latest.json \
+            packages/zippy/src-tauri/target/release/bundle/download.json
           do
             for file in $pattern; do
               ASSETS+=("$file")
@@ -106,8 +114,14 @@ jobs:
             find packages/zippy/src-tauri/target/release/bundle -maxdepth 3 -type f || true
             exit 1
           fi
+          NOTES=$(printf '%s\n' \
+            "Automated macOS release for @bear1210/zippy v${VERSION} (Tauri)." \
+            "" \
+            "## Download" \
+            "- Docs: https://tonychan-hub.github.io/AppSetup/guide/zippy#download" \
+            "- Docs (中文): https://tonychan-hub.github.io/AppSetup/zh/guide/zippy#download")
           gh release create "$TAG" \
             --repo "${{ github.repository }}" \
             --title "Zippy v${VERSION}" \
-            --notes "Automated macOS release for @bear1210/zippy v${VERSION} (Tauri)." \
+            --notes "$NOTES" \
             "${ASSETS[@]}"

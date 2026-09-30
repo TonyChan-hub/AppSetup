@@ -10,8 +10,8 @@ hero:
       text: Get started
       link: /guide/getting-started
     - theme: alt
-      text: Create RN app
-      link: /guide/create-rn
+      text: Download Zippy
+      link: /guide/zippy#download
     - theme: alt
       text: GitHub
       link: https://github.com/TonyChan-hub/AppSetup
@@ -23,5 +23,5 @@ features:
   - title: Environment helpers
     details: setup-rn-android-env / setup-rn-ios-env on macOS with CN/global mirrors, plus check-mobile-env for readiness.
   - title: Zippy inspector
-    details: Optional Tauri desktop tool to inspect MMKV, SQLite, network and perf from a connected probe.
+    details: Optional Tauri desktop tool to inspect MMKV, SQLite, network and perf — download macOS builds from the docs.
 ---

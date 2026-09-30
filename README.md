@@ -2,7 +2,13 @@
 
 Business-free React Native / Flutter scaffolds and macOS mobile toolchain helpers.
 
-**Docs site (EN / 中文):** https://tonychan-hub.github.io/AppSetup/ — built from `docs/` and deployed by [`.github/workflows/docs.yml`](.github/workflows/docs.yml) on push to `main`.
+**Docs site (EN / 中文):** https://tonychan-hub.github.io/AppSetup/ — built from `docs/` and deployed by [`.github/workflows/docs.yml`](.github/workflows/docs.yml) on push to `main` (publishes the `gh-pages` branch).
+
+One-time GitHub Pages setup (required for the site URL to work):
+
+1. Open [Settings → Pages](https://github.com/TonyChan-hub/AppSetup/settings/pages)
+2. **Build and deployment → Source:** Deploy from a branch
+3. **Branch:** `gh-pages` / `/ (root)` → Save
 
 ```bash
 npm run docs:dev      # local preview
@@ -52,7 +58,7 @@ packages/
 
 ## Zippy (desktop)
 
-Requires Node 20+ and a Rust stable toolchain.
+Requires Node 20+ and a Rust stable toolchain. Packaged macOS builds ship via [GitHub Releases](https://github.com/TonyChan-hub/AppSetup/releases); the docs site links them on the [Zippy page](https://tonychan-hub.github.io/AppSetup/guide/zippy#download).
 
 ```bash
 npm install

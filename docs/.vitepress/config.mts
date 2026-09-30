@@ -30,6 +30,7 @@ export default defineConfig({
           { text: 'React Native', link: '/guide/create-rn' },
           { text: 'Flutter', link: '/guide/create-flutter' },
           { text: 'Environment', link: '/guide/env-setup' },
+          { text: 'Download Zippy', link: '/guide/zippy#download' },
           {
             text: 'npm',
             items: [
@@ -88,6 +89,7 @@ export default defineConfig({
           { text: 'React Native', link: '/zh/guide/create-rn' },
           { text: 'Flutter', link: '/zh/guide/create-flutter' },
           { text: '环境配置', link: '/zh/guide/env-setup' },
+          { text: '下载 Zippy', link: '/zh/guide/zippy#download' },
           {
             text: 'npm',
             items: [

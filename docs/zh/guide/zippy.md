@@ -2,13 +2,15 @@
 
 Zippy 是基于 **Tauri 2** 的桌面应用，用于查看移动端调试数据（MMKV / SQLite / 网络 / 性能）。通过 **GitHub Releases** 分发，不发布到 npm。
 
+<ZippyDownload locale="zh" />
+
 ## 前置条件
 
 - Node.js 20+
 - Rust stable（`rustup`）
 - macOS（主要目标平台）
 
-## 开发
+## 开发 {#develop}
 
 ```bash
 npm install
@@ -31,4 +33,4 @@ SDK 细节见 [`zippy_flutter` 包 README](https://github.com/TonyChan-hub/AppSe
 
 ## 发版
 
-Bump `@bear1210/zippy` 并推送到 `main` 会触发 Zippy 发版工作流。打包产物通过 `tauri-plugin-updater` 对接 GitHub Releases。
+Bump `@bear1210/zippy` 并推送到 `main` 会触发 Zippy 发版工作流。打包产物会把 `.dmg` 以及 `download.json` / `latest.json` 发布到 GitHub Releases，上方的下载面板会自动读取这些资源。

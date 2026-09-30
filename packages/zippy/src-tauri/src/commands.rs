@@ -3,7 +3,6 @@ use crate::settings::{self, PartialSettings, ProbeSettings};
 use serde::Serialize;
 use serde_json::Value;
 use tauri::{AppHandle, Emitter, State};
-use tauri_plugin_process::RestartExt;
 use tauri_plugin_updater::UpdaterExt;
 
 pub struct AppState {

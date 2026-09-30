@@ -15,6 +15,7 @@ cd ios && pod install
 
 ```tsx
 import { useEffect } from 'react';
+import { open } from 'react-native-quick-sqlite';
 import { ZippyProbe } from '@bear1210/zippy-rn';
 import { getMmkvStorage } from '@/services/mmkvStorage';
 
@@ -26,7 +27,10 @@ useEffect(() => {
     // expose keys your app cares about, or mirror getAllKeys if available
     return {};
   });
-  ZippyProbe.registerSqliteDatabase('app.db', 'app.db');
+  // Prefer passing openDb so Metro resolves quick-sqlite from the app:
+  ZippyProbe.registerSqliteDatabase('app.db', 'app.db', () =>
+    open({ name: 'app.db' }),
+  );
 
   void ZippyProbe.start({
     appInfo: { name: 'MyApp', version: '0.0.1' },
@@ -55,7 +59,7 @@ export async function getJson(url: string) {
 
 1. Run the app in debug mode on a device/emulator.
 2. Open Zippy desktop → **Device** → host/port (default `9876`) → **Connect**.
-3. Physical Android device: use the phone LAN IP, or `adb reverse tcp:9876 tcp:9876` and connect to `127.0.0.1`.
+3. Physical Android device: use the phone LAN IP, or `adb forward tcp:9876 tcp:9876` and connect to `127.0.0.1` (host → device; `reverse` is the wrong direction).
 
 Probe URL path is always `/probe` (`ws://host:9876/probe`).
 
@@ -66,7 +70,7 @@ Probe URL path is always `/probe` (`ws://host:9876/probe`).
 | `ZippyProbe.start({ port?, enabled?, appInfo? })` | Start probe (no-op outside `__DEV__` unless `enabled: true`) |
 | `ZippyProbe.stop()` | Stop server |
 | `ZippyProbe.registerMmkvStore(id, reader)` | Register MMKV/map-backed store |
-| `ZippyProbe.registerSqliteDatabase(id, name)` | Register quick-sqlite DB name |
+| `ZippyProbe.registerSqliteDatabase(id, name, openDb?)` | Register DB; pass `openDb` from the app (recommended) |
 | `ZippyProbe.attachFetch(fetch?)` | Wrap fetch for Network panel |
 
 Protocol: `@bear1210/zippy-probe-protocol` (same as Flutter `zippy_flutter`).

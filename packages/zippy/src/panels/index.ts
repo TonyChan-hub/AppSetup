@@ -241,17 +241,28 @@ function renderSimpleList(
   selected: string | null,
   kind: string,
 ): string {
-  if (!items?.length) {
+  const normalized = (items ?? [])
+    .map((item) => {
+      if (typeof item === 'string') {
+        return item.trim() ? { id: item, sizeBytes: undefined as number | undefined } : null;
+      }
+      const id = typeof item.id === 'string' ? item.id.trim() : '';
+      if (!id) {
+        return null;
+      }
+      return { id, sizeBytes: item.sizeBytes };
+    })
+    .filter((item): item is { id: string; sizeBytes?: number } => item != null);
+
+  if (!normalized.length) {
     return `<div class="empty-inline">No ${kind}s.</div>`;
   }
-  return `<div class="list">${items
+  return `<div class="list">${normalized
     .map((item) => {
-      const id = typeof item === 'string' ? item : item.id;
-      const label = typeof item === 'string' ? item : item.id;
-      const meta = typeof item === 'string' ? '' : formatBytes(item.sizeBytes);
+      const meta = formatBytes(item.sizeBytes);
       return `
-        <button class="list-item ${id === selected ? 'is-active' : ''}" data-${kind}="${escapeHtml(id)}" type="button">
-          <span>${escapeHtml(label)}</span>
+        <button class="list-item ${item.id === selected ? 'is-active' : ''}" data-${kind}-id="${escapeHtml(item.id)}" type="button">
+          <span>${escapeHtml(item.id)}</span>
           ${meta ? `<span class="muted">${meta}</span>` : ''}
         </button>`;
     })
@@ -286,9 +297,13 @@ function renderRows(result: { rows?: Array<Record<string, unknown>> }): string {
 }
 
 function bindListActions(root: HTMLElement, kind: string, handler: (id: string) => void): void {
-  root.querySelectorAll(`[data-${kind}]`).forEach((button) => {
+  root.querySelectorAll(`[data-${kind}-id]`).forEach((button) => {
     button.addEventListener('click', () => {
-      handler((button as HTMLElement).dataset[kind] ?? '');
+      const id = (button as HTMLElement).getAttribute(`data-${kind}-id`) ?? '';
+      if (!id) {
+        return;
+      }
+      handler(id);
     });
   });
 }

@@ -4,17 +4,36 @@ exports.SqliteCollector = void 0;
 const protocol_1 = require("../protocol");
 class SqliteCollector {
     constructor() {
-        this.registeredNames = new Map();
+        this.registered = new Map();
     }
-    registerDatabase(id, nameOrPath) {
-        this.registeredNames.set(id, nameOrPath);
+    registerDatabase(id, nameOrPath, openDb) {
+        const trimmedId = typeof id === 'string' ? id.trim() : '';
+        const trimmedName = typeof nameOrPath === 'string' ? nameOrPath.trim() : '';
+        if (!trimmedId || !trimmedName) {
+            if (typeof __DEV__ !== 'undefined' && __DEV__) {
+                // eslint-disable-next-line no-console
+                console.warn('[ZippyProbe] registerSqliteDatabase requires non-empty id and name', { id, nameOrPath });
+            }
+            return;
+        }
+        this.registered.set(trimmedId, { name: trimmedName, openDb });
+    }
+    clear() {
+        this.registered.clear();
     }
     async listDatabases() {
+        // Drop HMR / bad-register ghosts (e.g. Map key undefined).
+        for (const id of [...this.registered.keys()]) {
+            const entry = this.registered.get(id);
+            if (!id || !entry?.name) {
+                this.registered.delete(id);
+            }
+        }
         const results = [];
-        for (const [id, name] of this.registeredNames.entries()) {
+        for (const [id, entry] of this.registered.entries()) {
             results.push({
                 id,
-                path: name,
+                path: entry.name,
                 sizeBytes: 0,
                 source: 'registered',
             });
@@ -53,13 +72,33 @@ class SqliteCollector {
             count: rows.length,
         };
     }
+    resolve(databaseId) {
+        const key = typeof databaseId === 'string' ? databaseId.trim() : '';
+        if (!key) {
+            return undefined;
+        }
+        const byId = this.registered.get(key);
+        if (byId) {
+            return byId;
+        }
+        // Desktop may pass path/name; accept either.
+        for (const entry of this.registered.values()) {
+            if (entry.name === key) {
+                return entry;
+            }
+        }
+        return undefined;
+    }
     openById(databaseId) {
-        const name = this.registeredNames.get(databaseId);
-        if (!name) {
+        const entry = this.resolve(databaseId);
+        if (!entry) {
             throw new Error(`Database not found: ${databaseId}`);
         }
+        if (entry.openDb) {
+            return entry.openDb();
+        }
         const open = loadQuickSqliteOpen();
-        return open({ name });
+        return open({ name: entry.name });
     }
 }
 exports.SqliteCollector = SqliteCollector;
@@ -91,6 +130,7 @@ function loadQuickSqliteOpen() {
         return mod.open;
     }
     catch {
-        throw new Error('react-native-quick-sqlite is required for Zippy SQLite inspection');
+        throw new Error('react-native-quick-sqlite is required for Zippy SQLite inspection. ' +
+            'Pass openDb when registering: ZippyProbe.registerSqliteDatabase(id, name, () => open({ name }))');
     }
 }

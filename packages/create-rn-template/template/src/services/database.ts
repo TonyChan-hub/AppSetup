@@ -2,10 +2,11 @@ import { open } from 'react-native-quick-sqlite';
 
 type SqlRow = Record<string, string | number | null>;
 
-const DB_NAME = 'app.db';
+export const DB_NAME = 'app.db';
 let dbReady = false;
 
-function getDb() {
+/** Shared opener for app code and Zippy SQLite inspection. */
+export function getDb() {
   return open({ name: DB_NAME });
 }
 

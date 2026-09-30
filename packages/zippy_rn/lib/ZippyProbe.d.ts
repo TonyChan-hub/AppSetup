@@ -2,7 +2,7 @@ import { DeviceCollector, type AppInfo } from './collectors/deviceCollector';
 import { MmkvCollector, type MmkvReader } from './collectors/mmkvCollector';
 import { NetworkCollector, type NetworkEventInput } from './collectors/networkCollector';
 import { PerfCollector } from './collectors/perfCollector';
-import { SqliteCollector } from './collectors/sqliteCollector';
+import { SqliteCollector, type SqliteDbFactory } from './collectors/sqliteCollector';
 import { attachFetch } from './network/attachFetch';
 export type ZippyStartOptions = {
     port?: number;
@@ -23,7 +23,7 @@ export declare class ZippyProbe {
     get isRunning(): boolean;
     getPort(): number | null;
     static registerMmkvStore(id: string, reader: MmkvReader): void;
-    static registerSqliteDatabase(id: string, nameOrPath: string): void;
+    static registerSqliteDatabase(id: string, nameOrPath: string, openDb?: SqliteDbFactory): void;
     static attachFetch: typeof attachFetch;
     static start(options?: ZippyStartOptions): Promise<number | null>;
     static stop(): Promise<void>;

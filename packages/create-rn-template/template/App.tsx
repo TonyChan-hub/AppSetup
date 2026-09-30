@@ -7,7 +7,7 @@ import { ZippyProbe } from '@bear1210/zippy-rn';
 
 import '@/i18n';
 import { RootNavigator } from '@/navigation/RootNavigator';
-import { initDatabase } from '@/services/database';
+import { DB_NAME, getDb, initDatabase } from '@/services/database';
 import { Logger } from '@/services/logger';
 import { readMmkvSnapshot } from '@/services/mmkvStorage';
 
@@ -24,7 +24,8 @@ function App(): React.JSX.Element {
     }
 
     ZippyProbe.registerMmkvStore('default', () => readMmkvSnapshot('default'));
-    ZippyProbe.registerSqliteDatabase('app.db', 'app.db');
+    // Pass app's open so Metro resolves quick-sqlite from the app (not zippy-rn).
+    ZippyProbe.registerSqliteDatabase(DB_NAME, DB_NAME, () => getDb());
 
     void ZippyProbe.start({
       appInfo: {

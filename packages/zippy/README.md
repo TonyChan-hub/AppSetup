@@ -51,6 +51,9 @@ If the signing secret is missing or invalid, the release workflow still publishe
 2. **React Native:** add `@bear1210/zippy-rn` and call `ZippyProbe.start()` in `__DEV__` (scaffolds do this by default).
 3. Run the app on a device/emulator reachable from your Mac.
 4. Open Zippy → **Device** → enter host/port (default `9876`) → **Connect**.
+   - iOS Simulator / Android Emulator with port mapping: `127.0.0.1` often works.
+   - Physical Android: device LAN IP, or `adb forward tcp:9876 tcp:9876` then `127.0.0.1`.
+   - Physical iOS: device LAN IP (USB alone does not expose the probe port).
 
 See [`../zippy_flutter/README.md`](../zippy_flutter/README.md) and [`../zippy_rn/README.md`](../zippy_rn/README.md) for SDK details.
 

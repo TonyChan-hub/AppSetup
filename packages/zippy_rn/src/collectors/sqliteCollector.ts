@@ -1,6 +1,6 @@
 import { DEFAULT_SQLITE_ROW_LIMIT } from '../protocol';
 
-type QuickSqliteDb = {
+export type QuickSqliteDb = {
   execute: (
     sql: string,
     params?: unknown[],
@@ -14,21 +14,58 @@ type QuickSqliteDb = {
   };
 };
 
+/** App-provided opener — prefer this so Metro resolves quick-sqlite from the app. */
+export type SqliteDbFactory = () => QuickSqliteDb;
+
 type OpenFn = (opts: { name: string }) => QuickSqliteDb;
 
-export class SqliteCollector {
-  private readonly registeredNames = new Map<string, string>();
+type RegisteredDatabase = {
+  name: string;
+  openDb?: SqliteDbFactory;
+};
 
-  registerDatabase(id: string, nameOrPath: string): void {
-    this.registeredNames.set(id, nameOrPath);
+export class SqliteCollector {
+  private readonly registered = new Map<string, RegisteredDatabase>();
+
+  registerDatabase(
+    id: string,
+    nameOrPath: string,
+    openDb?: SqliteDbFactory,
+  ): void {
+    const trimmedId = typeof id === 'string' ? id.trim() : '';
+    const trimmedName =
+      typeof nameOrPath === 'string' ? nameOrPath.trim() : '';
+    if (!trimmedId || !trimmedName) {
+      if (typeof __DEV__ !== 'undefined' && __DEV__) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          '[ZippyProbe] registerSqliteDatabase requires non-empty id and name',
+          { id, nameOrPath },
+        );
+      }
+      return;
+    }
+    this.registered.set(trimmedId, { name: trimmedName, openDb });
+  }
+
+  clear(): void {
+    this.registered.clear();
   }
 
   async listDatabases(): Promise<Array<Record<string, unknown>>> {
+    // Drop HMR / bad-register ghosts (e.g. Map key undefined).
+    for (const id of [...this.registered.keys()]) {
+      const entry = this.registered.get(id);
+      if (!id || !entry?.name) {
+        this.registered.delete(id);
+      }
+    }
+
     const results: Array<Record<string, unknown>> = [];
-    for (const [id, name] of this.registeredNames.entries()) {
+    for (const [id, entry] of this.registered.entries()) {
       results.push({
         id,
-        path: name,
+        path: entry.name,
         sizeBytes: 0,
         source: 'registered',
       });
@@ -87,13 +124,34 @@ export class SqliteCollector {
     };
   }
 
+  private resolve(databaseId: string): RegisteredDatabase | undefined {
+    const key = typeof databaseId === 'string' ? databaseId.trim() : '';
+    if (!key) {
+      return undefined;
+    }
+    const byId = this.registered.get(key);
+    if (byId) {
+      return byId;
+    }
+    // Desktop may pass path/name; accept either.
+    for (const entry of this.registered.values()) {
+      if (entry.name === key) {
+        return entry;
+      }
+    }
+    return undefined;
+  }
+
   private openById(databaseId: string): QuickSqliteDb {
-    const name = this.registeredNames.get(databaseId);
-    if (!name) {
+    const entry = this.resolve(databaseId);
+    if (!entry) {
       throw new Error(`Database not found: ${databaseId}`);
     }
+    if (entry.openDb) {
+      return entry.openDb();
+    }
     const open = loadQuickSqliteOpen();
-    return open({ name });
+    return open({ name: entry.name });
   }
 }
 
@@ -133,7 +191,8 @@ function loadQuickSqliteOpen(): OpenFn {
     return mod.open;
   } catch {
     throw new Error(
-      'react-native-quick-sqlite is required for Zippy SQLite inspection',
+      'react-native-quick-sqlite is required for Zippy SQLite inspection. ' +
+        'Pass openDb when registering: ZippyProbe.registerSqliteDatabase(id, name, () => open({ name }))',
     );
   }
 }

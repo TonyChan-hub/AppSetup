@@ -56,7 +56,7 @@ ZippyProbe.attachDio(dio);
 
 Pack with `bash packages/zippy_flutter/scripts/pack.sh`, or let `create-flutter-template` unpack its vendor zip. See [`packages/zippy_flutter/README.md`](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_flutter).
 
-Physical Android: use the device LAN IP, or `adb reverse tcp:9876 tcp:9876` and connect to `127.0.0.1`.
+Physical Android: use the device LAN IP, or `adb forward tcp:9876 tcp:9876` and connect to `127.0.0.1` (Zippy runs on the host and must reach the probe on the device — that needs `forward`, not `reverse`).
 
 ## Releases
 

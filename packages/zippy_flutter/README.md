@@ -62,7 +62,7 @@ ZippyProbe.registerSqliteDatabase('app.db', dbPath); // only if auto-discovery m
 ## Connection
 
 1. Run the host app in debug mode on a device/emulator.
-2. Use the device LAN IP from the desktop (not `127.0.0.1` on a physical phone unless `adb reverse` works).
+2. Use the device LAN IP from the desktop (not `127.0.0.1` on a physical phone unless you run `adb forward tcp:9876 tcp:9876`).
 3. Open Zippy desktop and connect to `host:9876`.
 
 ## Example

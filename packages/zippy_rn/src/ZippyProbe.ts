@@ -5,7 +5,10 @@ import {
   type NetworkEventInput,
 } from './collectors/networkCollector';
 import { PerfCollector } from './collectors/perfCollector';
-import { SqliteCollector } from './collectors/sqliteCollector';
+import {
+  SqliteCollector,
+  type SqliteDbFactory,
+} from './collectors/sqliteCollector';
 import { attachFetch } from './network/attachFetch';
 import { DEFAULT_PROBE_PORT, EventType } from './protocol';
 import { ProbeServer } from './probeServer';
@@ -65,8 +68,12 @@ export class ZippyProbe {
     mmkvCollector.registerStore(id, reader);
   }
 
-  static registerSqliteDatabase(id: string, nameOrPath: string): void {
-    sqliteCollector.registerDatabase(id, nameOrPath);
+  static registerSqliteDatabase(
+    id: string,
+    nameOrPath: string,
+    openDb?: SqliteDbFactory,
+  ): void {
+    sqliteCollector.registerDatabase(id, nameOrPath, openDb);
   }
 
   static attachFetch = attachFetch;

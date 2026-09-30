@@ -56,7 +56,7 @@ ZippyProbe.attachDio(dio);
 
 用 `bash packages/zippy_flutter/scripts/pack.sh` 打包，或由 `create-flutter-template` 解压 vendor zip。详见 [`packages/zippy_flutter/README.md`](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_flutter)。
 
-真机 Android：使用设备局域网 IP，或 `adb reverse tcp:9876 tcp:9876` 后连 `127.0.0.1`。
+真机 Android：使用设备局域网 IP，或执行 `adb forward tcp:9876 tcp:9876` 后连 `127.0.0.1`（Zippy 在电脑端，要连到手机上的 probe，需要 `forward` 而不是 `reverse`）。
 
 ## 发版
 

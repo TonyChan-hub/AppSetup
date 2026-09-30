@@ -47,8 +47,8 @@ class ZippyProbe {
     static registerMmkvStore(id, reader) {
         mmkvCollector.registerStore(id, reader);
     }
-    static registerSqliteDatabase(id, nameOrPath) {
-        sqliteCollector.registerDatabase(id, nameOrPath);
+    static registerSqliteDatabase(id, nameOrPath, openDb) {
+        sqliteCollector.registerDatabase(id, nameOrPath, openDb);
     }
     static async start(options = {}) {
         const shouldRun = options.enabled ?? ZippyProbe.isEnabled;

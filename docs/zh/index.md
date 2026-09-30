@@ -23,5 +23,5 @@ features:
   - title: 环境助手
     details: macOS 上 setup-rn-android-env / setup-rn-ios-env（支持国内镜像），以及 check-mobile-env 环境检查。
   - title: Zippy 调试器
-    details: 可选的 Tauri 桌面工具，用于查看 MMKV、SQLite、网络与性能数据 — 可在文档站直接下载 macOS 安装包。
+    details: Tauri 桌面工具，查看 MMKV、SQLite、网络与性能 — 可下载 macOS 安装包，连接脚手架自带的 probe（端口 9876）。
 ---

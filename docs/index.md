@@ -23,5 +23,5 @@ features:
   - title: Environment helpers
     details: setup-rn-android-env / setup-rn-ios-env on macOS with CN/global mirrors, plus check-mobile-env for readiness.
   - title: Zippy inspector
-    details: Optional Tauri desktop tool to inspect MMKV, SQLite, network and perf — download macOS builds from the docs.
+    details: Tauri desktop tool for MMKV, SQLite, network and perf — download macOS builds, connect to the scaffold probe on port 9876.
 ---

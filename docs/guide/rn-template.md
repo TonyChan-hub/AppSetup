@@ -17,7 +17,7 @@ What `@bear1210/create-rn-template` puts into a new app.
 | SQLite | `react-native-quick-sqlite` |
 | MMKV | `react-native-mmkv` |
 | HTTP | Shared `httpClient` (fetch + Zippy network hook in `__DEV__`) |
-| Zippy | `@bear1210/zippy-rn` probe — `ZippyProbe.start()` in `__DEV__` only |
+| Zippy | `@bear1210/zippy-rn` — `start()` in `__DEV__`; registers MMKV + SQLite with app `openDb` (see [Zippy](./zippy)) |
 
 ## Engineering
 

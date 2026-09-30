@@ -30,7 +30,7 @@
 
 ## 默认包含
 
-- `zippy_flutter` probe（仅 debug）— 脚手架会解压/拷贝到 `packages/zippy_flutter`
+- `zippy_flutter` probe（仅 debug）— 脚手架会解压/拷贝到 `packages/zippy_flutter`；用 [Zippy](./zippy) 连接，端口 `9876`
 
 ## 生成结构
 

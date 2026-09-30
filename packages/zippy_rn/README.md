@@ -17,17 +17,14 @@ cd ios && pod install
 import { useEffect } from 'react';
 import { open } from 'react-native-quick-sqlite';
 import { ZippyProbe } from '@bear1210/zippy-rn';
-import { getMmkvStorage } from '@/services/mmkvStorage';
+import { readMmkvSnapshot } from '@/services/mmkvStorage';
 
 useEffect(() => {
   if (!__DEV__) return;
 
-  ZippyProbe.registerMmkvStore('default', () => {
-    const storage = getMmkvStorage('default');
-    // expose keys your app cares about, or mirror getAllKeys if available
-    return {};
-  });
-  // Prefer passing openDb so Metro resolves quick-sqlite from the app:
+  ZippyProbe.registerMmkvStore('default', () => readMmkvSnapshot('default'));
+  // Prefer passing openDb so Metro resolves quick-sqlite from the app
+  // (zippy-rn cannot reliably require the native module itself):
   ZippyProbe.registerSqliteDatabase('app.db', 'app.db', () =>
     open({ name: 'app.db' }),
   );
@@ -42,7 +39,7 @@ useEffect(() => {
 }, []);
 ```
 
-Instrument fetch:
+Instrument fetch for the Network panel:
 
 ```ts
 import { ZippyProbe } from '@bear1210/zippy-rn';
@@ -55,11 +52,21 @@ export async function getJson(url: string) {
 }
 ```
 
+AppSetup’s RN scaffold does the above in `App.tsx` automatically.
+
 ## Connection
 
 1. Run the app in debug mode on a device/emulator.
 2. Open Zippy desktop → **Device** → host/port (default `9876`) → **Connect**.
-3. Physical Android device: use the phone LAN IP, or `adb forward tcp:9876 tcp:9876` and connect to `127.0.0.1` (host → device; `reverse` is the wrong direction).
+3. Pick the right host:
+
+| Target | Host |
+| ------ | ---- |
+| iOS Simulator / Android Emulator | `127.0.0.1` |
+| Physical Android | LAN IP, or `adb forward tcp:9876 tcp:9876` then `127.0.0.1` |
+| Physical iOS | LAN IP |
+
+`adb forward` is host → device (Zippy on Mac talking to the probe on phone). Do **not** use `adb reverse`.
 
 Probe URL path is always `/probe` (`ws://host:9876/probe`).
 
@@ -73,4 +80,4 @@ Probe URL path is always `/probe` (`ws://host:9876/probe`).
 | `ZippyProbe.registerSqliteDatabase(id, name, openDb?)` | Register DB; pass `openDb` from the app (recommended) |
 | `ZippyProbe.attachFetch(fetch?)` | Wrap fetch for Network panel |
 
-Protocol: `@bear1210/zippy-probe-protocol` (same as Flutter `zippy_flutter`).
+Protocol: `@bear1210/zippy-probe-protocol` (same as Flutter `zippy_flutter`). Docs: [Zippy guide](https://tonychan-hub.github.io/AppSetup/guide/zippy).

@@ -1,6 +1,6 @@
 # @bear1210/zippy-probe-protocol
 
-Shared JSON message contract for Zippy desktop and mobile probe SDKs.
+Shared JSON message contract for Zippy desktop and mobile probe SDKs (`@bear1210/zippy-rn`, `zippy_flutter`, desktop `@bear1210/zippy`).
 
 ## Usage
 
@@ -15,4 +15,4 @@ import {
 } from '@bear1210/zippy-probe-protocol';
 ```
 
-Default probe WebSocket path: `ws://host:9876/probe`.
+Default probe WebSocket path: `ws://host:9876/probe`. Consumers: [zippy_rn](../zippy_rn) · [zippy_flutter](../zippy_flutter) · [Zippy docs](../../docs/guide/zippy.md).

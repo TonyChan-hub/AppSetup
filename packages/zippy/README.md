@@ -45,17 +45,32 @@ Then:
 
 If the signing secret is missing or invalid, the release workflow still publishes the `.dmg` (docs download works); only in-app updater signatures are skipped.
 
+## Panels
+
+| Panel | Role |
+| ----- | ---- |
+| **Device** | Connect to `host:port` + app / OS info |
+| **MMKV / KV** | Browse registered key–value stores |
+| **SQLite** | List tables and preview rows |
+| **Network** | Captured HTTP from `attachFetch` / `attachDio` |
+| **Perf** | Lightweight samples from the probe |
+
 ## Connect to a mobile probe
 
 1. **Flutter:** add `zippy_flutter` and call `await ZippyProbe.start()` in debug (scaffolds do this by default).
-2. **React Native:** add `@bear1210/zippy-rn` and call `ZippyProbe.start()` in `__DEV__` (scaffolds do this by default).
+2. **React Native:** add `@bear1210/zippy-rn` and call `ZippyProbe.start()` in `__DEV__` (scaffolds also register MMKV / SQLite with app `openDb`).
 3. Run the app on a device/emulator reachable from your Mac.
 4. Open Zippy → **Device** → enter host/port (default `9876`) → **Connect**.
-   - iOS Simulator / Android Emulator with port mapping: `127.0.0.1` often works.
-   - Physical Android: device LAN IP, or `adb forward tcp:9876 tcp:9876` then `127.0.0.1`.
-   - Physical iOS: device LAN IP (USB alone does not expose the probe port).
 
-See [`../zippy_flutter/README.md`](../zippy_flutter/README.md) and [`../zippy_rn/README.md`](../zippy_rn/README.md) for SDK details.
+| Target | Host |
+| ------ | ---- |
+| iOS Simulator / Android Emulator | `127.0.0.1` |
+| Physical Android | LAN IP, or `adb forward tcp:9876 tcp:9876` then `127.0.0.1` |
+| Physical iOS | LAN IP (USB alone does not expose the probe port) |
+
+Use `adb forward` (host → device), not `reverse`. WebSocket path: `ws://host:9876/probe`.
+
+See [`../zippy_flutter/README.md`](../zippy_flutter/README.md) and [`../zippy_rn/README.md`](../zippy_rn/README.md) for SDK details. Full guide: [docs/guide/zippy.md](../../docs/guide/zippy.md).
 
 ## Auto-update & docs download
 

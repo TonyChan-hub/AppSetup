@@ -11,6 +11,7 @@ AppSetup 是一套**无业务逻辑**的移动端脚手架与 macOS 工具链助
 | Android SDK / JDK（macOS） | `npx -p @bear1210/create-rn-template setup-rn-android-env` |
 | iOS CocoaPods 工具链（macOS） | `npx -p @bear1210/create-rn-template setup-rn-ios-env` |
 | 诊断本机环境 | `npx -p @bear1210/create-rn-template check-mobile-env` |
+| 查看调试数据（桌面端） | [下载 Zippy](./zippy#download) — 连接脚手架自带的 probe（端口 `9876`） |
 
 ## 环境要求
 
@@ -29,4 +30,4 @@ npx @bear1210/create-flutter-template myFlutterApp --org=com.example
 cd myFlutterApp && flutter run
 ```
 
-接下来：[包一览](./packages) · [创建 RN 项目](./create-rn) · [创建 Flutter 项目](./create-flutter)
+接下来：[包一览](./packages) · [创建 RN 项目](./create-rn) · [创建 Flutter 项目](./create-flutter) · [Zippy](./zippy)

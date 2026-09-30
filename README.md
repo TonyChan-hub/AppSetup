@@ -61,12 +61,22 @@ packages/
 
 ## Zippy (desktop)
 
-Requires Node 20+ and a Rust stable toolchain. Packaged macOS builds ship via [GitHub Releases](https://github.com/TonyChan-hub/AppSetup/releases); the docs site links them on the [Zippy page](https://tonychan-hub.github.io/AppSetup/guide/zippy#download).
+Tauri inspector for MMKV / SQLite / network / perf from a debug probe on device. Requires Node 20+ and a Rust stable toolchain. Packaged macOS builds ship via [GitHub Releases](https://github.com/TonyChan-hub/AppSetup/releases); download from the [docs Zippy page](https://tonychan-hub.github.io/AppSetup/guide/zippy#download).
 
 ```bash
 npm install
 npm run zippy
 ```
+
+RN / Flutter scaffolds already call `ZippyProbe.start()` in debug. Connect from the **Device** panel (default port `9876`):
+
+| Target | Host |
+| ------ | ---- |
+| Simulator / Emulator | `127.0.0.1` |
+| Physical Android | LAN IP, or `adb forward tcp:9876 tcp:9876` then `127.0.0.1` |
+| Physical iOS | LAN IP |
+
+Use `adb forward` (host → device), not `reverse`. Full guide: [docs/guide/zippy.md](./docs/guide/zippy.md) · SDKs: [`zippy_rn`](./packages/zippy_rn) · [`zippy_flutter`](./packages/zippy_flutter).
 
 ## CLI usage
 
@@ -88,7 +98,7 @@ Optional flags:
 - React Native 0.81.6 project bootstrap (via RN CLI)
 - Base engineering configs (`tsconfig`, `eslint`, `prettier`, `metro`, `jest`)
 - Infrastructure modules: `logger`, `i18n`, `sqlite` (`react-native-quick-sqlite`), `mmkv` (`react-native-mmkv`)
-- Zippy probe (`@bear1210/zippy-rn`) — `ZippyProbe.start()` in `__DEV__` only
+- Zippy probe (`@bear1210/zippy-rn`) — `ZippyProbe.start()` in `__DEV__` only; registers MMKV + SQLite (`openDb` from the app so Metro resolves `quick-sqlite`)
 - Git quality gates: `commitlint`, `husky`, `lint-staged`
 - Cursor assets: `.cursor/rules`, `.cursor/skills`
 - `patch-package` + `patches/`
@@ -112,7 +122,7 @@ Full CLI docs: [`packages/create-flutter-template/README.md`](./packages/create-
 - Flutter project bootstrap (via `flutter create`, Android + iOS)
 - Layered `lib/` layout: `pages` / `router` / `providers` / `datasources` / `repositories` / `entities` / `services` / `core` / `l10n`
 - Infrastructure: Dio + auth interceptor hook, sqflite logger, ScreenUtil theme (Poppins), GoRouter, Provider, permission helpers
-- Zippy probe (`zippy_flutter` under `packages/`) — `ZippyProbe.start()` in debug only
+- Zippy probe (`zippy_flutter` under `packages/`) — `ZippyProbe.start()` in debug only; connect from Zippy desktop on port `9876`
 - `package.json` scripts for analyze / format / build / `gen:l10n`
 - Git quality gates: `commitlint`, `husky`
 - Cursor rules for architecture / Dart style / l10n / iOS private-API

@@ -80,7 +80,7 @@ create-flutter-template <project-name> [--org=com.example] [--skip-install]
 
 **Included by default**
 
-- `zippy_flutter` probe (debug only via `ZippyProbe.start()`; path dep under `packages/zippy_flutter`)
+- `zippy_flutter` probe (debug only via `ZippyProbe.start()`; path dep under `packages/zippy_flutter`). Connect with [Zippy](../../docs/guide/zippy.md) on port `9876` (`adb forward` for USB Android).
 
 ## Generated layout
 

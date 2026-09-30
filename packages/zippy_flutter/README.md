@@ -28,7 +28,7 @@ dependencies:
 flutter pub get
 ```
 
-No monorepo path / pub.dev required — only that zip.
+No monorepo path / pub.dev required — only that zip. `@bear1210/create-flutter-template` unpacks a vendor zip into `packages/zippy_flutter` automatically.
 
 ## Minimal code integration
 
@@ -50,8 +50,6 @@ If the app uses Dio:
 ZippyProbe.attachDio(dio); // one line; debug-only by default
 ```
 
-Then open Zippy desktop → connect to `phone-lan-ip:9876`.
-
 ## Optional helpers
 
 ```dart
@@ -62,9 +60,19 @@ ZippyProbe.registerSqliteDatabase('app.db', dbPath); // only if auto-discovery m
 ## Connection
 
 1. Run the host app in debug mode on a device/emulator.
-2. Use the device LAN IP from the desktop (not `127.0.0.1` on a physical phone unless you run `adb forward tcp:9876 tcp:9876`).
-3. Open Zippy desktop and connect to `host:9876`.
+2. Open Zippy desktop → **Device** → host/port (default `9876`) → **Connect**.
+3. Pick the right host:
+
+| Target | Host |
+| ------ | ---- |
+| iOS Simulator / Android Emulator | `127.0.0.1` |
+| Physical Android | LAN IP, or `adb forward tcp:9876 tcp:9876` then `127.0.0.1` |
+| Physical iOS | LAN IP |
+
+Zippy runs on the Mac and must reach the probe on the device — use `adb forward`, not `reverse`. Path: `ws://host:9876/probe`.
 
 ## Example
 
 See `example/` for a minimal demo app with SQLite seed data and sample network calls.
+
+Docs: [Zippy guide](https://tonychan-hub.github.io/AppSetup/guide/zippy).

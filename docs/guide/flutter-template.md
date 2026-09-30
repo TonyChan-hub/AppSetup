@@ -30,7 +30,7 @@ What `@bear1210/create-flutter-template` puts into a new app.
 
 ## Included by default
 
-- `zippy_flutter` probe (debug only) — scaffold copies/unpacks into `packages/zippy_flutter`
+- `zippy_flutter` probe (debug only) — scaffold copies/unpacks into `packages/zippy_flutter`; connect from [Zippy](./zippy) on port `9876`
 
 ## Generated layout
 

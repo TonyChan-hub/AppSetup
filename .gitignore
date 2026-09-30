@@ -29,3 +29,5 @@ packages/zippy_flutter/example/android/.gradle/
 packages/zippy_flutter/pubspec.lock
 packages/zippy_flutter/example/pubspec.lock
 packages/zippy_flutter/dist/
+docs/.vitepress/dist/
+docs/.vitepress/cache/

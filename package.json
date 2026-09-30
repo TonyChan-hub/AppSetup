@@ -17,9 +17,15 @@
     "check-mobile-env": "npm exec -w @bear1210/create-rn-template -- check-mobile-env",
     "zippy": "npm exec -w @bear1210/zippy -- zippy",
     "zippy:build": "npm run build -w @bear1210/zippy",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "version:create-rn-template": "npm version -w @bear1210/create-rn-template",
     "version:create-flutter-template": "npm version -w @bear1210/create-flutter-template",
     "version:zippy": "npm version -w @bear1210/zippy"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4"
   },
   "engines": {
     "node": ">=20"

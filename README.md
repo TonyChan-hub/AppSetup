@@ -2,6 +2,13 @@
 
 Business-free React Native / Flutter scaffolds and macOS mobile toolchain helpers.
 
+**Docs site (EN / 中文):** https://tonychan-hub.github.io/AppSetup/ — built from `docs/` and deployed by [`.github/workflows/docs.yml`](.github/workflows/docs.yml) on push to `main`.
+
+```bash
+npm run docs:dev      # local preview
+npm run docs:build    # static site → docs/.vitepress/dist
+```
+
 ## Packages
 
 | Package | npm | Version source |

@@ -6,43 +6,73 @@
     <title>Zippy</title>
   </head>
   <body>
-    <div class="app">
-      <aside class="sidebar">
-        <div class="brand">
+    <div class="app" id="app-root" data-mode="inspector">
+      <header class="mode-bar">
+        <div class="brand mode-brand">
           <span class="brand-mark">Z</span>
           <div>
             <div class="brand-name">Zippy</div>
-            <div class="brand-sub">mobile inspector</div>
+            <div class="brand-sub">devtools</div>
           </div>
         </div>
-        <nav class="nav">
-          <button class="nav-item is-active" type="button" data-panel="device">Device</button>
-          <button class="nav-item" type="button" data-panel="kv">MMKV / KV</button>
-          <button class="nav-item" type="button" data-panel="db">SQLite</button>
-          <button class="nav-item" type="button" data-panel="network">Network</button>
-          <button class="nav-item" type="button" data-panel="perf">Perf</button>
-        </nav>
-        <div class="sidebar-footer">
-          <div id="runtime-meta" class="meta">—</div>
+        <div class="mode-tabs" role="tablist" aria-label="Zippy modes">
+          <button class="mode-tab" type="button" data-mode="git" role="tab" aria-selected="false">
+            Git
+          </button>
+          <button
+            class="mode-tab is-active"
+            type="button"
+            data-mode="inspector"
+            role="tab"
+            aria-selected="true"
+          >
+            Inspector
+          </button>
+          <button class="mode-tab" type="button" data-mode="tools" role="tab" aria-selected="false">
+            Tools
+          </button>
         </div>
-      </aside>
-
-      <main class="main">
-        <header class="topbar">
-          <div>
-            <h1 id="panel-title">Device</h1>
-            <p id="panel-desc" class="muted">
-              Connect a debug app to inspect runtime data.
-            </p>
-          </div>
-          <div class="status">
+        <div class="mode-bar-right">
+          <div class="status" id="connection-status-wrap">
             <span class="status-dot" id="status-dot"></span>
             <span id="connection-status">Waiting for device</span>
           </div>
-        </header>
+          <div id="runtime-meta" class="meta">—</div>
+        </div>
+      </header>
 
-        <section class="panel" id="panel"></section>
-      </main>
+      <div class="mode-body" id="mode-inspector">
+        <aside class="sidebar">
+          <nav class="nav">
+            <button class="nav-item is-active" type="button" data-panel="device">Device</button>
+            <button class="nav-item" type="button" data-panel="kv">MMKV / KV</button>
+            <button class="nav-item" type="button" data-panel="db">SQLite</button>
+            <button class="nav-item" type="button" data-panel="network">Network</button>
+            <button class="nav-item" type="button" data-panel="perf">Perf</button>
+          </nav>
+        </aside>
+
+        <main class="main">
+          <header class="topbar">
+            <div>
+              <h1 id="panel-title">Device</h1>
+              <p id="panel-desc" class="muted">
+                Connect a debug app to inspect runtime data.
+              </p>
+            </div>
+          </header>
+
+          <section class="panel" id="panel"></section>
+        </main>
+      </div>
+
+      <div class="mode-body git-mode" id="mode-git" hidden>
+        <div class="git-shell" id="git-shell"></div>
+      </div>
+
+      <div class="mode-body tools-mode" id="mode-tools" hidden>
+        <div class="tools-shell-host" id="tools-shell"></div>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

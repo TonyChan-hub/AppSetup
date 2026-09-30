@@ -10,6 +10,7 @@
     "store:default",
     "updater:default",
     "process:default",
+    "dialog:default",
     "allow-zippy"
   ]
 }

@@ -2,7 +2,7 @@
   "name": "@bear1210/zippy",
   "version": "0.0.1",
   "private": true,
-  "description": "Zippy — desktop inspector for mobile app debug data (MMKV, SQLite, network, perf)",
+  "description": "Zippy — Git multi-repo/SSH manager + mobile inspector (MMKV, SQLite, network, perf)",
   "license": "MIT",
   "author": "Bear1210",
   "type": "module",
@@ -21,6 +21,7 @@
   "dependencies": {
     "@bear1210/zippy-probe-protocol": "0.0.1",
     "@tauri-apps/api": "^2.9.0",
+    "@tauri-apps/plugin-dialog": "^2.8.0",
     "@tauri-apps/plugin-process": "^2.3.0",
     "@tauri-apps/plugin-store": "^2.4.0",
     "@tauri-apps/plugin-updater": "^2.9.0"
@@ -45,6 +46,8 @@
     "flutter",
     "mmkv",
     "sqlite",
-    "zippy"
+    "zippy",
+    "git",
+    "ssh"
   ]
 }

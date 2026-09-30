@@ -8,7 +8,11 @@ import {
   type AppState,
   type DeviceInfo,
 } from './panels/index';
+import { mountGitPanel, type GitController } from './panels/git';
+import { mountToolsPanel, type ToolsController } from './panels/tools';
 import { zippy } from './lib/zippy';
+
+type AppMode = 'git' | 'inspector' | 'tools';
 
 const panels: Record<string, { title: string; desc: string }> = {
   device: {
@@ -33,13 +37,21 @@ const panels: Record<string, { title: string; desc: string }> = {
   },
 };
 
+const appRoot = document.getElementById('app-root');
 const titleEl = document.getElementById('panel-title');
 const descEl = document.getElementById('panel-desc');
 const statusEl = document.getElementById('connection-status');
 const statusDotEl = document.getElementById('status-dot');
+const statusWrapEl = document.getElementById('connection-status-wrap');
 const panelEl = document.getElementById('panel');
 const metaEl = document.getElementById('runtime-meta');
+const modeInspectorEl = document.getElementById('mode-inspector');
+const modeGitEl = document.getElementById('mode-git');
+const modeToolsEl = document.getElementById('mode-tools');
+const gitShellEl = document.getElementById('git-shell');
+const toolsShellEl = document.getElementById('tools-shell');
 const navItems = document.querySelectorAll<HTMLButtonElement>('.nav-item');
+const modeTabs = document.querySelectorAll<HTMLButtonElement>('.mode-tab');
 
 const state: AppState = {
   activePanel: 'device',
@@ -65,6 +77,12 @@ const state: AppState = {
   selectedEventId: null,
   perf: null,
 };
+
+let activeMode: AppMode = 'inspector';
+let gitController: GitController | null = null;
+let gitBootstrapped = false;
+let toolsController: ToolsController | null = null;
+let toolsBootstrapped = false;
 
 function errorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -245,6 +263,44 @@ const actions: AppActions = {
   },
 };
 
+function setMode(mode: AppMode): void {
+  activeMode = mode;
+  appRoot?.setAttribute('data-mode', mode);
+  modeTabs.forEach((tab) => {
+    const active = tab.dataset.mode === mode;
+    tab.classList.toggle('is-active', active);
+    tab.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  if (modeInspectorEl) modeInspectorEl.hidden = mode !== 'inspector';
+  if (modeGitEl) modeGitEl.hidden = mode !== 'git';
+  if (modeToolsEl) modeToolsEl.hidden = mode !== 'tools';
+  if (statusWrapEl) statusWrapEl.hidden = mode !== 'inspector';
+
+  if (mode === 'git') {
+    if (gitShellEl && !gitController) {
+      gitController = mountGitPanel(gitShellEl);
+    }
+    if (gitController && !gitBootstrapped) {
+      gitBootstrapped = true;
+      void gitController.bootstrap();
+    } else {
+      gitController?.render();
+    }
+  } else if (mode === 'tools') {
+    if (toolsShellEl && !toolsController) {
+      toolsController = mountToolsPanel(toolsShellEl);
+    }
+    if (toolsController && !toolsBootstrapped) {
+      toolsBootstrapped = true;
+      void toolsController.bootstrap();
+    } else {
+      toolsController?.render();
+    }
+  } else {
+    render();
+  }
+}
+
 function setPanel(id: string): void {
   state.activePanel = id;
   const panel = panels[id] ?? panels.device;
@@ -289,7 +345,7 @@ async function refreshPanelData(): Promise<void> {
 }
 
 function render(): void {
-  if (!panelEl) {
+  if (activeMode !== 'inspector' || !panelEl) {
     return;
   }
 
@@ -334,6 +390,13 @@ navItems.forEach((item) => {
   });
 });
 
+modeTabs.forEach((tab) => {
+  tab.addEventListener('click', () => {
+    const mode = (tab.dataset.mode as AppMode) || 'inspector';
+    setMode(mode);
+  });
+});
+
 export async function bootstrap(): Promise<void> {
   await zippy.initPlatform();
   if (metaEl) {
@@ -350,12 +413,16 @@ export async function bootstrap(): Promise<void> {
       payload.connected ? `Connected to ${payload.url}` : 'Waiting for device',
       payload.connected,
     );
-    render();
+    if (activeMode === 'inspector') {
+      render();
+    }
   });
 
   zippy.probe.onDevice((payload) => {
     state.deviceInfo = payload as DeviceInfo;
-    render();
+    if (activeMode === 'inspector') {
+      render();
+    }
   });
 
   zippy.probe.onNetwork((payload) => {
@@ -363,14 +430,14 @@ export async function bootstrap(): Promise<void> {
       0,
       500,
     );
-    if (state.activePanel === 'network') {
+    if (activeMode === 'inspector' && state.activePanel === 'network') {
       render();
     }
   });
 
   zippy.probe.onPerf((payload) => {
     state.perf = payload as AppState['perf'];
-    if (state.activePanel === 'perf') {
+    if (activeMode === 'inspector' && state.activePanel === 'perf') {
       render();
     }
   });
@@ -381,27 +448,38 @@ export async function bootstrap(): Promise<void> {
 
   zippy.updater.onAvailable((info) => {
     state.updateStatus = `Update ${info.version} available. Downloading…`;
-    render();
+    if (activeMode === 'inspector') {
+      render();
+    }
   });
   zippy.updater.onNotAvailable(() => {
     state.updateStatus = 'You are on the latest version.';
-    render();
+    if (activeMode === 'inspector') {
+      render();
+    }
   });
   zippy.updater.onProgress((progress) => {
     state.updateStatus = `Downloading update… ${Math.round(progress.percent)}%`;
-    render();
+    if (activeMode === 'inspector') {
+      render();
+    }
   });
   zippy.updater.onDownloaded((info) => {
     state.updateStatus = `Update ${info.version} ready to install.`;
     state.installUpdateReady = true;
-    render();
+    if (activeMode === 'inspector') {
+      render();
+    }
   });
   zippy.updater.onError((payload) => {
     state.updateStatus = payload.message;
-    render();
+    if (activeMode === 'inspector') {
+      render();
+    }
   });
 
   const status = await zippy.probe.status();
   setStatus(status.connected ? `Connected to ${status.url}` : 'Waiting for device', status.connected);
+  setMode('inspector');
   setPanel('device');
 }

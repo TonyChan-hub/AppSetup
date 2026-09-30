@@ -61,14 +61,20 @@ packages/
 
 ## Zippy (desktop)
 
-Tauri inspector for MMKV / SQLite / network / perf from a debug probe on device. Requires Node 20+ and a Rust stable toolchain. Packaged macOS builds ship via [GitHub Releases](https://github.com/TonyChan-hub/AppSetup/releases); download from the [docs Zippy page](https://tonychan-hub.github.io/AppSetup/guide/zippy#download).
+Tauri desktop tool with three modes:
+
+- **Git** — multi-repo workspace, branch switching, per-repo SSH / identity profiles
+- **Inspector** — MMKV / SQLite / network / perf from a device probe
+- **Tools** — adb / iOS Simulator shortcuts (ports, capture, app, media, env, logs)
+
+Requires Node 20+ and a Rust stable toolchain. Packaged macOS builds ship via [GitHub Releases](https://github.com/TonyChan-hub/AppSetup/releases); download from the [docs Zippy page](https://tonychan-hub.github.io/AppSetup/guide/zippy#download).
 
 ```bash
 npm install
 npm run zippy
 ```
 
-RN / Flutter scaffolds already call `ZippyProbe.start()` in debug. Connect from the **Device** panel (default port `9876`):
+RN / Flutter scaffolds already call `ZippyProbe.start()` in debug. Connect from **Inspector → Device** (default port `9876`):
 
 | Target | Host |
 | ------ | ---- |

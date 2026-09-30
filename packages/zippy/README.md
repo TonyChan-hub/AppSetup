@@ -1,11 +1,19 @@
 # @bear1210/zippy
 
-Tauri 2 desktop inspector for **Zippy** — mobile app debug data (MMKV / SQLite / network / perf).
+Tauri 2 desktop tool with three modes:
+
+- **Git** — multi-repo branch management + per-repo identity / SSH profiles (GitSwitch-compatible config at `~/.gitswitch/config.json`)
+- **Inspector** — mobile app debug data (MMKV / SQLite / network / perf)
+- **Tools** — adb / iOS Simulator shortcuts (devices, ports, capture, app, media, env, logs)
+
+Full feature guide (EN / 中文): [docs Zippy page](https://tonychan-hub.github.io/AppSetup/guide/zippy).
 
 ## Prerequisites
 
 - Node.js 20+
 - Rust stable (`rustup`)
+- System `git` on `PATH` (for Git mode)
+- `adb` / Xcode (for Tools mode, optional until used)
 - macOS (primary target)
 
 ## Develop
@@ -45,7 +53,19 @@ Then:
 
 If the signing secret is missing or invalid, the release workflow still publishes the `.dmg` (docs download works); only in-app updater signatures are skipped.
 
-## Panels
+## Modes
+
+### Git
+
+| Area | Role |
+| ---- | ---- |
+| Repos | Add / select local git repositories |
+| Branches / Commits / Remotes | View status and **switch branches** |
+| Profiles | Manage identity / SSH and **apply to current repo** (local config only) |
+
+No fetch / push / create / delete branch. Does not change global `~/.gitconfig`. Existing GitSwitch data in `~/.gitswitch` (or legacy `~/.gitbench`) is reused.
+
+### Inspector
 
 | Panel | Role |
 | ----- | ---- |
@@ -55,12 +75,24 @@ If the signing secret is missing or invalid, the release workflow still publishe
 | **Network** | Captured HTTP from `attachFetch` / `attachDio` |
 | **Perf** | Lightweight samples from the probe |
 
+### Tools
+
+| Action | Role |
+| ------ | ---- |
+| Devices / AVDs | List Android + iOS Simulator targets; boot / shutdown |
+| Ports | `adb forward` (probe) + `adb reverse` (Metro) |
+| Capture | Screenshot + screen record |
+| App | Install / uninstall / launch / restart / force-stop / clear data + package list |
+| Media / URL | Import gallery media, open deeplinks, type text (Android) |
+| Env | Permissions, GPS location, light/dark appearance |
+| Logs | Stream `logcat` / `log stream` with Start / Stop |
+
 ## Connect to a mobile probe
 
 1. **Flutter:** add `zippy_flutter` and call `await ZippyProbe.start()` in debug (scaffolds do this by default).
 2. **React Native:** add `@bear1210/zippy-rn` and call `ZippyProbe.start()` in `__DEV__` (scaffolds also register MMKV / SQLite with app `openDb`).
 3. Run the app on a device/emulator reachable from your Mac.
-4. Open Zippy → **Device** → enter host/port (default `9876`) → **Connect**.
+4. Open Zippy → **Inspector** → **Device** → enter host/port (default `9876`) → **Connect**.
 
 | Target | Host |
 | ------ | ---- |

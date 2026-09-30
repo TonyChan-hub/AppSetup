@@ -4,7 +4,7 @@
 | ------- | ------- | ---- |
 | [`@bear1210/create-rn-template`](https://www.npmjs.com/package/@bear1210/create-rn-template) | npm | RN scaffold CLI + env setup / check bins |
 | [`@bear1210/create-flutter-template`](https://www.npmjs.com/package/@bear1210/create-flutter-template) | npm | Flutter scaffold CLI (embeds `zippy_flutter` vendor zip) |
-| [`@bear1210/zippy`](/guide/zippy) | GitHub Releases | Tauri desktop inspector ([download](/guide/zippy#download)) |
+| [`@bear1210/zippy`](/guide/zippy) | GitHub Releases | Tauri desktop tool — Git / Inspector / Tools ([download](/guide/zippy#download)) |
 | `@bear1210/zippy-probe-protocol` | npm | Shared JSON probe protocol |
 | [`@bear1210/zippy-rn`](https://www.npmjs.com/package/@bear1210/zippy-rn) | npm | React Native debug probe SDK ([README](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_rn)) |
 | `zippy_flutter` | zip / path | Flutter debug probe SDK ([README](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_flutter)) |

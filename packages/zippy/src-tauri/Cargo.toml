@@ -18,6 +18,7 @@ tauri = { version = "2", features = [] }
 tauri-plugin-store = "2"
 tauri-plugin-updater = "2"
 tauri-plugin-process = "2"
+tauri-plugin-dialog = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["sync", "rt-multi-thread", "macros", "time"] }
@@ -26,6 +27,8 @@ futures-util = "0.3"
 uuid = { version = "1", features = ["v4"] }
 thiserror = "2"
 url = "2"
+dirs = "6"
+base64 = "0.22"
 
 [profile.release]
 panic = "abort"

@@ -4,7 +4,7 @@
 | -- | -------- | ---- |
 | [`@bear1210/create-rn-template`](https://www.npmjs.com/package/@bear1210/create-rn-template) | npm | RN 脚手架 CLI + 环境配置 / 检查命令 |
 | [`@bear1210/create-flutter-template`](https://www.npmjs.com/package/@bear1210/create-flutter-template) | npm | Flutter 脚手架 CLI（内嵌 `zippy_flutter` vendor zip） |
-| [`@bear1210/zippy`](/zh/guide/zippy) | GitHub Releases | Tauri 桌面调试器（[下载](/zh/guide/zippy#download)） |
+| [`@bear1210/zippy`](/zh/guide/zippy) | GitHub Releases | Tauri 桌面工具 — Git / Inspector / Tools（[下载](/zh/guide/zippy#download)） |
 | `@bear1210/zippy-probe-protocol` | npm | 共享 JSON probe 协议 |
 | [`@bear1210/zippy-rn`](https://www.npmjs.com/package/@bear1210/zippy-rn) | npm | React Native 调试 probe SDK（[README](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_rn)） |
 | `zippy_flutter` | zip / path | Flutter 调试 probe SDK（[README](https://github.com/TonyChan-hub/AppSetup/tree/main/packages/zippy_flutter)） |

@@ -48,6 +48,231 @@ identifier = "allow-updater-install"
 description = "Restart to install a downloaded update"
 commands.allow = ["updater_install"]
 
+[[permission]]
+identifier = "allow-git-get-config"
+description = "Read GitSwitch-compatible multi-repo config"
+commands.allow = ["get_config"]
+
+[[permission]]
+identifier = "allow-git-add-repo"
+description = "Add a local git repository"
+commands.allow = ["add_repo"]
+
+[[permission]]
+identifier = "allow-git-remove-repo"
+description = "Remove a repository from the list"
+commands.allow = ["remove_repo"]
+
+[[permission]]
+identifier = "allow-git-select-repo"
+description = "Select the active git repository"
+commands.allow = ["select_repo"]
+
+[[permission]]
+identifier = "allow-git-upsert-profile"
+description = "Create or update a git identity profile"
+commands.allow = ["upsert_profile"]
+
+[[permission]]
+identifier = "allow-git-delete-profile"
+description = "Delete a git identity profile"
+commands.allow = ["delete_profile"]
+
+[[permission]]
+identifier = "allow-git-bind-repo-profile"
+description = "Bind a profile to a repository"
+commands.allow = ["bind_repo_profile"]
+
+[[permission]]
+identifier = "allow-git-list-branches"
+description = "List local and remote branches"
+commands.allow = ["list_branches"]
+
+[[permission]]
+identifier = "allow-git-checkout-branch"
+description = "Checkout a git branch"
+commands.allow = ["checkout_branch"]
+
+[[permission]]
+identifier = "allow-git-create-branch"
+description = "Create a git branch"
+commands.allow = ["create_branch"]
+
+[[permission]]
+identifier = "allow-git-delete-branch"
+description = "Delete a local git branch"
+commands.allow = ["delete_branch"]
+
+[[permission]]
+identifier = "allow-git-get-repo-status"
+description = "Read repository status and remotes"
+commands.allow = ["get_repo_status"]
+
+[[permission]]
+identifier = "allow-git-apply-profile"
+description = "Apply profile identity and SSH to a repository"
+commands.allow = ["apply_profile"]
+
+[[permission]]
+identifier = "allow-git-fetch-repo"
+description = "Fetch remotes for a repository"
+commands.allow = ["fetch_repo"]
+
+[[permission]]
+identifier = "allow-git-push-repo"
+description = "Push the current branch"
+commands.allow = ["push_repo"]
+
+[[permission]]
+identifier = "allow-git-recent-log"
+description = "Read recent commit log lines"
+commands.allow = ["recent_log"]
+
+[[permission]]
+identifier = "allow-git-list-ssh-keys"
+description = "List SSH private keys under ~/.ssh"
+commands.allow = ["list_ssh_keys"]
+
+[[permission]]
+identifier = "allow-git-import-missing-ssh-profiles"
+description = "Import missing SSH keys as profiles"
+commands.allow = ["import_missing_ssh_profiles"]
+
+[[permission]]
+identifier = "allow-tools-list-devices"
+description = "List Android and iOS Simulator devices"
+commands.allow = ["tools_list_devices"]
+
+[[permission]]
+identifier = "allow-tools-adb-forward"
+description = "Create an adb port forward for the probe"
+commands.allow = ["tools_adb_forward"]
+
+[[permission]]
+identifier = "allow-tools-adb-forward-remove"
+description = "Remove an adb port forward"
+commands.allow = ["tools_adb_forward_remove"]
+
+[[permission]]
+identifier = "allow-tools-screenshot"
+description = "Capture a device or simulator screenshot"
+commands.allow = ["tools_screenshot"]
+
+[[permission]]
+identifier = "allow-tools-save-file"
+description = "Save base64-encoded bytes to a local file"
+commands.allow = ["tools_save_file"]
+
+[[permission]]
+identifier = "allow-tools-install"
+description = "Install an app package on a device or simulator"
+commands.allow = ["tools_install"]
+
+[[permission]]
+identifier = "allow-tools-uninstall"
+description = "Uninstall an app package from a device or simulator"
+commands.allow = ["tools_uninstall"]
+
+[[permission]]
+identifier = "allow-tools-log-start"
+description = "Start streaming device or simulator logs"
+commands.allow = ["tools_log_start"]
+
+[[permission]]
+identifier = "allow-tools-log-stop"
+description = "Stop streaming device or simulator logs"
+commands.allow = ["tools_log_stop"]
+
+[[permission]]
+identifier = "allow-tools-list-avds"
+description = "List Android Virtual Devices"
+commands.allow = ["tools_list_avds"]
+
+[[permission]]
+identifier = "allow-tools-adb-reverse"
+description = "Create an adb reverse port mapping"
+commands.allow = ["tools_adb_reverse"]
+
+[[permission]]
+identifier = "allow-tools-adb-reverse-remove"
+description = "Remove an adb reverse port mapping"
+commands.allow = ["tools_adb_reverse_remove"]
+
+[[permission]]
+identifier = "allow-tools-add-media"
+description = "Import a photo or video into the device gallery"
+commands.allow = ["tools_add_media"]
+
+[[permission]]
+identifier = "allow-tools-open-url"
+description = "Open a URL or deep link on the device"
+commands.allow = ["tools_open_url"]
+
+[[permission]]
+identifier = "allow-tools-clear-data"
+description = "Clear application data on Android"
+commands.allow = ["tools_clear_data"]
+
+[[permission]]
+identifier = "allow-tools-force-stop"
+description = "Force-stop or terminate an application"
+commands.allow = ["tools_force_stop"]
+
+[[permission]]
+identifier = "allow-tools-launch-app"
+description = "Launch an application"
+commands.allow = ["tools_launch_app"]
+
+[[permission]]
+identifier = "allow-tools-restart-app"
+description = "Restart an application"
+commands.allow = ["tools_restart_app"]
+
+[[permission]]
+identifier = "allow-tools-permission-set"
+description = "Grant or revoke an application permission"
+commands.allow = ["tools_permission_set"]
+
+[[permission]]
+identifier = "allow-tools-set-location"
+description = "Set simulator or emulator GPS location"
+commands.allow = ["tools_set_location"]
+
+[[permission]]
+identifier = "allow-tools-set-appearance"
+description = "Set light or dark appearance"
+commands.allow = ["tools_set_appearance"]
+
+[[permission]]
+identifier = "allow-tools-input-text"
+description = "Type text onto an Android device"
+commands.allow = ["tools_input_text"]
+
+[[permission]]
+identifier = "allow-tools-list-packages"
+description = "List installed application packages"
+commands.allow = ["tools_list_packages"]
+
+[[permission]]
+identifier = "allow-tools-boot-device"
+description = "Boot an iOS Simulator or Android AVD"
+commands.allow = ["tools_boot_device"]
+
+[[permission]]
+identifier = "allow-tools-shutdown-device"
+description = "Shut down a simulator or power off an Android device"
+commands.allow = ["tools_shutdown_device"]
+
+[[permission]]
+identifier = "allow-tools-record-start"
+description = "Start screen recording"
+commands.allow = ["tools_record_start"]
+
+[[permission]]
+identifier = "allow-tools-record-stop"
+description = "Stop screen recording and save the file"
+commands.allow = ["tools_record_stop"]
+
 [[set]]
 identifier = "allow-zippy"
 description = "All Zippy desktop commands"
@@ -61,5 +286,50 @@ permissions = [
   "allow-app-get-version",
   "allow-app-get-platform",
   "allow-updater-check",
-  "allow-updater-install"
+  "allow-updater-install",
+  "allow-git-get-config",
+  "allow-git-add-repo",
+  "allow-git-remove-repo",
+  "allow-git-select-repo",
+  "allow-git-upsert-profile",
+  "allow-git-delete-profile",
+  "allow-git-bind-repo-profile",
+  "allow-git-list-branches",
+  "allow-git-checkout-branch",
+  "allow-git-create-branch",
+  "allow-git-delete-branch",
+  "allow-git-get-repo-status",
+  "allow-git-apply-profile",
+  "allow-git-fetch-repo",
+  "allow-git-push-repo",
+  "allow-git-recent-log",
+  "allow-git-list-ssh-keys",
+  "allow-git-import-missing-ssh-profiles",
+  "allow-tools-list-devices",
+  "allow-tools-list-avds",
+  "allow-tools-adb-forward",
+  "allow-tools-adb-forward-remove",
+  "allow-tools-adb-reverse",
+  "allow-tools-adb-reverse-remove",
+  "allow-tools-screenshot",
+  "allow-tools-save-file",
+  "allow-tools-install",
+  "allow-tools-uninstall",
+  "allow-tools-add-media",
+  "allow-tools-open-url",
+  "allow-tools-clear-data",
+  "allow-tools-force-stop",
+  "allow-tools-launch-app",
+  "allow-tools-restart-app",
+  "allow-tools-permission-set",
+  "allow-tools-set-location",
+  "allow-tools-set-appearance",
+  "allow-tools-input-text",
+  "allow-tools-list-packages",
+  "allow-tools-boot-device",
+  "allow-tools-shutdown-device",
+  "allow-tools-log-start",
+  "allow-tools-log-stop",
+  "allow-tools-record-start",
+  "allow-tools-record-stop"
 ]

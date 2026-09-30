@@ -11,7 +11,7 @@ AppSetup 是一套**无业务逻辑**的移动端脚手架与 macOS 工具链助
 | Android SDK / JDK（macOS） | `npx -p @bear1210/create-rn-template setup-rn-android-env` |
 | iOS CocoaPods 工具链（macOS） | `npx -p @bear1210/create-rn-template setup-rn-ios-env` |
 | 诊断本机环境 | `npx -p @bear1210/create-rn-template check-mobile-env` |
-| 查看调试数据（桌面端） | [下载 Zippy](./zippy#download) — 连接脚手架自带的 probe（端口 `9876`） |
+| Zippy 桌面端（Git / Inspector / Tools） | [下载 Zippy](./zippy#download) — 功能说明见 [Zippy 文档](./zippy)；Inspector 连接脚手架 probe（端口 `9876`） |
 
 ## 环境要求
 

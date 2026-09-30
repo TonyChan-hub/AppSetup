@@ -53,40 +53,108 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # Write the secret to a file — multiline / base64 keys are more reliable as a path
+      # than an env string. Empty password secret must stay empty (key generated with -p "").
+      - name: Prepare updater signing key
+        id: signing
+        if: steps.tag_check.outputs.skip != 'true'
+        env:
+          RAW_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          if [ -z "$RAW_KEY" ]; then
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+            echo "No TAURI_SIGNING_PRIVATE_KEY repo secret — will ship DMG without updater signatures."
+            exit 0
+          fi
+          KEY_PATH="${RUNNER_TEMP}/tauri-updater.key"
+          # Preserve exact secret bytes (base64 one-liner or minisign file with comments)
+          printf '%s' "$RAW_KEY" > "$KEY_PATH"
+          # Ensure trailing newline (minisign / tauri accept either)
+          printf '\n' >> "$KEY_PATH"
+          if grep -q "untrusted comment" "$KEY_PATH" \
+            || printf '%s' "$RAW_KEY" | base64 -d 2>/dev/null | grep -q "untrusted comment"; then
+            echo "Key looks like a Tauri/minisign private key."
+          else
+            echo "::warning::TAURI_SIGNING_PRIVATE_KEY does not look like a minisign secret (missing 'untrusted comment'). Build may fail signing; we will fall back to DMG-only."
+          fi
+          echo "has_key=true" >> "$GITHUB_OUTPUT"
+          echo "key_path=$KEY_PATH" >> "$GITHUB_OUTPUT"
+
       - name: Build macOS app
+        id: build
         if: steps.tag_check.outputs.skip != 'true'
         working-directory: packages/zippy
         env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ steps.signing.outputs.key_path }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npm run build
+          HAS_KEY: ${{ steps.signing.outputs.has_key }}
+        run: |
+          set -euo pipefail
+          build_unsigned() {
+            echo "Building without updater artifacts (DMG/app only)..."
+            npx tauri build --config '{"bundle":{"createUpdaterArtifacts":false}}'
+            echo "updater_signed=false" >> "$GITHUB_OUTPUT"
+          }
+
+          if [ "${HAS_KEY}" != "true" ]; then
+            build_unsigned
+            exit 0
+          fi
+
+          set +e
+          npm run build
+          code=$?
+          set -e
+
+          if [ "$code" -eq 0 ]; then
+            echo "updater_signed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          DMG=$(ls src-tauri/target/release/bundle/dmg/*.dmg 2>/dev/null | head -1 || true)
+          if [ -n "$DMG" ]; then
+            echo "::warning::Updater signing failed after bundles were produced. Publishing DMG without updater signatures."
+            echo "Fix TAURI_SIGNING_PRIVATE_KEY (full private key from \`tauri signer generate\`) and optional TAURI_SIGNING_PRIVATE_KEY_PASSWORD."
+            rm -f src-tauri/target/release/bundle/macos/*.app.tar.gz.sig || true
+            echo "updater_signed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "::warning::Signed build failed with no DMG; retrying without updater artifacts..."
+          build_unsigned
 
       - name: Write updater latest.json + docs download.json
         if: steps.tag_check.outputs.skip != 'true'
         env:
           VERSION: ${{ steps.version.outputs.version }}
           TAG: ${{ steps.version.outputs.tag }}
+          UPDATER_SIGNED: ${{ steps.build.outputs.updater_signed }}
         run: |
           BUNDLE_ROOT="packages/zippy/src-tauri/target/release/bundle"
           UPDATER_DIR="$BUNDLE_ROOT"
-          # Prefer macos updater tarballs directory when present
           if [ -d "$BUNDLE_ROOT/macos" ]; then
             UPDATER_DIR="$BUNDLE_ROOT/macos"
           fi
-          node packages/zippy/scripts/write-latest-json.mjs \
-            "$VERSION" \
-            "$UPDATER_DIR" \
-            "$TAG" \
-            "${{ github.repository }}"
+
+          if [ "$UPDATER_SIGNED" = "true" ]; then
+            node packages/zippy/scripts/write-latest-json.mjs \
+              "$VERSION" \
+              "$UPDATER_DIR" \
+              "$TAG" \
+              "${{ github.repository }}"
+            mkdir -p "$BUNDLE_ROOT/dmg"
+            cp "$UPDATER_DIR/latest.json" "$BUNDLE_ROOT/dmg/latest.json" 2>/dev/null || true
+            cp "$UPDATER_DIR/latest.json" "$BUNDLE_ROOT/latest.json"
+          else
+            echo "Skipping latest.json (no updater signatures)."
+          fi
+
           node packages/zippy/scripts/write-download-json.mjs \
             "$VERSION" \
             "$BUNDLE_ROOT" \
             "$TAG" \
             "${{ github.repository }}"
-          # Also copy manifests next to dmg outputs for easier upload globs
           mkdir -p "$BUNDLE_ROOT/dmg"
-          cp "$UPDATER_DIR/latest.json" "$BUNDLE_ROOT/dmg/latest.json" 2>/dev/null || true
-          cp "$UPDATER_DIR/latest.json" "$BUNDLE_ROOT/latest.json"
           cp "$BUNDLE_ROOT/download.json" "$BUNDLE_ROOT/dmg/download.json" 2>/dev/null || true
 
       - name: Create GitHub Release
@@ -95,6 +163,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.version.outputs.tag }}
           VERSION: ${{ steps.version.outputs.version }}
+          UPDATER_SIGNED: ${{ steps.build.outputs.updater_signed }}
         run: |
           shopt -s nullglob
           ASSETS=()
@@ -120,6 +189,9 @@ jobs:
             "## Download" \
             "- Docs: https://tonychan-hub.github.io/AppSetup/guide/zippy#download" \
             "- Docs (中文): https://tonychan-hub.github.io/AppSetup/zh/guide/zippy#download")
+          if [ "$UPDATER_SIGNED" != "true" ]; then
+            NOTES=$(printf '%s\n' "$NOTES" "" "Note: updater signatures were not published in this build (signing key missing or invalid). DMG install still works.")
+          fi
           gh release create "$TAG" \
             --repo "${{ github.repository }}" \
             --title "Zippy v${VERSION}" \

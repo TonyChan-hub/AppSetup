@@ -34,9 +34,16 @@ Release builds sign updater artifacts with `TAURI_SIGNING_PRIVATE_KEY` (and opti
 ```bash
 cd packages/zippy
 npx tauri signer generate -w src-tauri/.updater-key --ci -p ""
-# put the printed public key into src-tauri/tauri.conf.json → plugins.updater.pubkey
-# store the private key contents in GitHub Actions secret TAURI_SIGNING_PRIVATE_KEY
 ```
+
+Then:
+
+1. Put the **printed public key** into `src-tauri/tauri.conf.json` → `plugins.updater.pubkey`
+2. In GitHub → **Settings → Secrets and variables → Actions → Repository secrets** (not Environment secrets):
+   - `TAURI_SIGNING_PRIVATE_KEY` = full private key from the generate output / `.updater-key` file (must decode to a minisign secret that starts with `untrusted comment:`)
+   - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` = leave unset / empty if you used `-p ""`
+
+If the signing secret is missing or invalid, the release workflow still publishes the `.dmg` (docs download works); only in-app updater signatures are skipped.
 
 ## Connect to a Flutter probe
 

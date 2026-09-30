@@ -169,8 +169,8 @@ jobs:
           set -euo pipefail
           BUNDLE_ROOT="packages/zippy/src-tauri/target/release/bundle"
           ASSETS=()
-          while IFS= read -r -d '' file; do
-            ASSETS+=("$file")
+          while IFS= read -r file; do
+            [ -n "$file" ] && ASSETS+=("$file")
           done < <(
             find "$BUNDLE_ROOT" -maxdepth 3 -type f \( \
               -name '*.dmg' -o \
@@ -178,7 +178,7 @@ jobs:
               -name '*.app.tar.gz.sig' -o \
               -name 'latest.json' -o \
               -name 'download.json' \
-            \) -print0 | sort -z
+            \) | LC_ALL=C sort
           )
 
           if [ ${#ASSETS[@]} -eq 0 ]; then

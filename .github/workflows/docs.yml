@@ -9,6 +9,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/docs.yml'
+  # Manual redeploy (Actions → Deploy docs → Run workflow)
   workflow_dispatch:
 
 # Pushes built site to the `gh-pages` branch.

@@ -241,18 +241,26 @@ function renderSimpleList(
   selected: string | null,
   kind: string,
 ): string {
-  const normalized = (items ?? [])
-    .map((item) => {
-      if (typeof item === 'string') {
-        return item.trim() ? { id: item, sizeBytes: undefined as number | undefined } : null;
+  type ListItem = { id: string; sizeBytes?: number };
+  const normalized: ListItem[] = [];
+  for (const item of items ?? []) {
+    if (typeof item === 'string') {
+      const id = item.trim();
+      if (id) {
+        normalized.push({ id });
       }
-      const id = typeof item.id === 'string' ? item.id.trim() : '';
-      if (!id) {
-        return null;
-      }
-      return { id, sizeBytes: item.sizeBytes };
-    })
-    .filter((item): item is { id: string; sizeBytes?: number } => item != null);
+      continue;
+    }
+    const id = typeof item.id === 'string' ? item.id.trim() : '';
+    if (!id) {
+      continue;
+    }
+    if (typeof item.sizeBytes === 'number') {
+      normalized.push({ id, sizeBytes: item.sizeBytes });
+    } else {
+      normalized.push({ id });
+    }
+  }
 
   if (!normalized.length) {
     return `<div class="empty-inline">No ${kind}s.</div>`;

@@ -2,13 +2,15 @@
 
 Business-free React Native / Flutter scaffolds and macOS mobile toolchain helpers.
 
-**Docs site (EN / 中文):** https://tonychan-hub.github.io/AppSetup/ — built from `docs/` and deployed by [`.github/workflows/docs.yml`](.github/workflows/docs.yml) on push to `main` (publishes the `gh-pages` branch).
+**Docs site (EN / 中文):** https://tonychan-hub.github.io/AppSetup/ — built from `docs/` and deployed by [`.github/workflows/docs.yml`](.github/workflows/docs.yml) on push to `main` via GitHub Actions Pages.
 
 One-time GitHub Pages setup (required for the site URL to work):
 
 1. Open [Settings → Pages](https://github.com/TonyChan-hub/AppSetup/settings/pages)
-2. **Build and deployment → Source:** Deploy from a branch
-3. **Branch:** `gh-pages` / `/ (root)` → Save
+2. **Build and deployment → Source:** GitHub Actions
+3. Push to `main` (or run **Actions → Deploy docs → Run workflow**) to publish
+
+The docs workflow builds VitePress and deploys via `actions/deploy-pages` (not the `gh-pages` branch).
 
 ```bash
 npm run docs:dev      # local preview

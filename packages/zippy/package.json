@@ -1,6 +1,6 @@
 {
   "name": "@bear1210/zippy",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "Zippy — Git multi-repo/SSH manager + mobile inspector (MMKV, SQLite, network, perf)",
   "license": "MIT",

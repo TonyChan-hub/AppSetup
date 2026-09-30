@@ -41,16 +41,30 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=zippy-v$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Skip if release tag already exists
+      # Prefer GitHub Releases API over local tags (checkout does not fetch tags by default).
+      - name: Skip if release already exists with assets
         id: tag_check
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
         run: |
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
+          set -euo pipefail
+          if ! gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "reupload=false" >> "$GITHUB_OUTPUT"
+            echo "No existing release for $TAG."
+            exit 0
+          fi
+          ASSET_COUNT=$(gh release view "$TAG" --repo "${{ github.repository }}" --json assets --jq '.assets | length')
+          if [ "$ASSET_COUNT" -gt 0 ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "Release tag $TAG already exists."
+            echo "reupload=false" >> "$GITHUB_OUTPUT"
+            echo "Release $TAG already has $ASSET_COUNT asset(s); skipping."
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "reupload=true" >> "$GITHUB_OUTPUT"
+            echo "Release $TAG exists but has no assets; will rebuild and upload."
           fi
 
       # Write the secret to a file — multiline / base64 keys are more reliable as a path
@@ -67,9 +81,7 @@ jobs:
             exit 0
           fi
           KEY_PATH="${RUNNER_TEMP}/tauri-updater.key"
-          # Preserve exact secret bytes (base64 one-liner or minisign file with comments)
           printf '%s' "$RAW_KEY" > "$KEY_PATH"
-          # Ensure trailing newline (minisign / tauri accept either)
           printf '\n' >> "$KEY_PATH"
           if grep -q "untrusted comment" "$KEY_PATH" \
             || printf '%s' "$RAW_KEY" | base64 -d 2>/dev/null | grep -q "untrusted comment"; then
@@ -129,24 +141,28 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
           TAG: ${{ steps.version.outputs.tag }}
           UPDATER_SIGNED: ${{ steps.build.outputs.updater_signed }}
+        shell: bash
         run: |
+          set -euo pipefail
           BUNDLE_ROOT="packages/zippy/src-tauri/target/release/bundle"
           UPDATER_DIR="$BUNDLE_ROOT"
           if [ -d "$BUNDLE_ROOT/macos" ]; then
             UPDATER_DIR="$BUNDLE_ROOT/macos"
           fi
 
-          if [ "$UPDATER_SIGNED" = "true" ]; then
+          # Avoid duplicate asset basenames under dmg/ from previous copies.
+          rm -f "$BUNDLE_ROOT/dmg/download.json" "$BUNDLE_ROOT/dmg/latest.json" 2>/dev/null || true
+
+          if [ "${UPDATER_SIGNED:-}" = "true" ]; then
             node packages/zippy/scripts/write-latest-json.mjs \
               "$VERSION" \
               "$UPDATER_DIR" \
               "$TAG" \
               "${{ github.repository }}"
-            mkdir -p "$BUNDLE_ROOT/dmg"
-            cp "$UPDATER_DIR/latest.json" "$BUNDLE_ROOT/dmg/latest.json" 2>/dev/null || true
             cp "$UPDATER_DIR/latest.json" "$BUNDLE_ROOT/latest.json"
           else
             echo "Skipping latest.json (no updater signatures)."
+            rm -f "$BUNDLE_ROOT/latest.json"
           fi
 
           node packages/zippy/scripts/write-download-json.mjs \
@@ -154,8 +170,6 @@ jobs:
             "$BUNDLE_ROOT" \
             "$TAG" \
             "${{ github.repository }}"
-          mkdir -p "$BUNDLE_ROOT/dmg"
-          cp "$BUNDLE_ROOT/download.json" "$BUNDLE_ROOT/dmg/download.json" 2>/dev/null || true
 
       - name: Create GitHub Release
         if: steps.tag_check.outputs.skip != 'true'
@@ -164,13 +178,27 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
           VERSION: ${{ steps.version.outputs.version }}
           UPDATER_SIGNED: ${{ steps.build.outputs.updater_signed }}
+          REUPLOAD: ${{ steps.tag_check.outputs.reupload }}
         shell: bash
         run: |
           set -euo pipefail
           BUNDLE_ROOT="packages/zippy/src-tauri/target/release/bundle"
           ASSETS=()
           while IFS= read -r file; do
-            [ -n "$file" ] && ASSETS+=("$file")
+            [ -n "$file" ] || continue
+            base=$(basename "$file")
+            dup=false
+            for existing in "${ASSETS[@]+"${ASSETS[@]}"}"; do
+              if [ "$(basename "$existing")" = "$base" ]; then
+                echo "Skipping duplicate asset name: $file (already have $existing)"
+                dup=true
+                break
+              fi
+            done
+            if [ "$dup" = true ]; then
+              continue
+            fi
+            ASSETS+=("$file")
           done < <(
             find "$BUNDLE_ROOT" -maxdepth 3 -type f \( \
               -name '*.dmg' -o \
@@ -199,8 +227,20 @@ jobs:
           if [ "${UPDATER_SIGNED:-}" != "true" ]; then
             NOTES=$(printf '%s\n' "$NOTES" "" "Note: updater signatures were not published in this build (signing key missing or invalid). DMG install still works.")
           fi
-          gh release create "$TAG" \
-            --repo "${{ github.repository }}" \
-            --title "Zippy v${VERSION}" \
-            --notes "$NOTES" \
-            "${ASSETS[@]}"
+
+          if [ "${REUPLOAD:-}" = "true" ]; then
+            gh release upload "$TAG" \
+              --repo "${{ github.repository }}" \
+              --clobber \
+              "${ASSETS[@]}"
+            gh release edit "$TAG" \
+              --repo "${{ github.repository }}" \
+              --title "Zippy v${VERSION}" \
+              --notes "$NOTES"
+          else
+            gh release create "$TAG" \
+              --repo "${{ github.repository }}" \
+              --title "Zippy v${VERSION}" \
+              --notes "$NOTES" \
+              "${ASSETS[@]}"
+          fi

@@ -79,14 +79,7 @@ const manifest = {
   assets,
 };
 
-const outDirs = [
-  path.join(bundleRoot, 'dmg'),
-  bundleRoot,
-].filter((dir) => fs.existsSync(dir) || dir === bundleRoot);
-
-for (const dir of outDirs) {
-  fs.mkdirSync(dir, { recursive: true });
-  const outPath = path.join(dir, 'download.json');
-  fs.writeFileSync(outPath, `${JSON.stringify(manifest, null, 2)}\n`);
-  console.log(`Wrote ${outPath}`);
-}
+const outPath = path.join(bundleRoot, 'download.json');
+fs.mkdirSync(bundleRoot, { recursive: true });
+fs.writeFileSync(outPath, `${JSON.stringify(manifest, null, 2)}\n`);
+console.log(`Wrote ${outPath}`);
